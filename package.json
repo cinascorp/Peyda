@@ -1,0 +1,42 @@
+{
+  "name": "peyda-military-uav-tracker",
+  "version": "1.0.0",
+  "description": "سامانه رصد و ردیابی پهپادهای نظامی - Military UAV Tracking System",
+  "main": "uav.html",
+  "scripts": {
+    "start": "npx http-server . -p 8080 -o",
+    "dev": "npx live-server --port=8080 --open=uav.html",
+    "build": "echo 'Static HTML application - no build required'",
+    "test": "echo 'No tests configured yet'"
+  },
+  "keywords": [
+    "uav",
+    "drone",
+    "military", 
+    "tracking",
+    "surveillance",
+    "adsb",
+    "flightradar",
+    "persian",
+    "farsi",
+    "iran",
+    "defense"
+  ],
+  "author": "Military UAV Tracking Team",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "live-server": "^1.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/military/peyda-uav-tracker"
+  },
+  "bugs": {
+    "url": "https://github.com/military/peyda-uav-tracker/issues"
+  },
+  "homepage": "https://github.com/military/peyda-uav-tracker#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
