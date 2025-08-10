@@ -1,853 +1,1133 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>سامانه رصد پهپادی تار - TAR C4ISR</title>
-  <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>AEGIS C4ISR | Advanced UAV Command & Control System</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/dark/main.css">
   <script src="https://js.arcgis.com/4.34/"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    * {
-      box-sizing: border-box;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-    
-    html, body {
-      padding: 0; 
-      margin: 0; 
-      height: 100vh; 
-      width: 100vw;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      direction: rtl;
-      overflow: hidden;
-      background: #1a1a1a;
+    :root {
+      --header-h: 64px;
+      --footer-h: 80px;
+      --sidebar-w: 320px;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #1a1a1a;
+      --bg-tertiary: #2a2a2a;
+      --accent-primary: #00ff41;
+      --accent-secondary: #ff4444;
+      --accent-warning: #ffaa00;
+      --accent-info: #0099ff;
+      --text-primary: #ffffff;
+      --text-secondary: #cccccc;
+      --text-muted: #888888;
+      --border-color: #333333;
+      --shadow: 0 4px 20px rgba(0, 255, 65, 0.1);
+      --grid-glow: rgba(0, 255, 65, 0.3);
     }
 
-    #viewDiv {
-      position: absolute;
-      top: 60px;
-      left: 0;
-      right: 0;
-      bottom: 1px;
-      z-index: 1;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: 'Orbitron', 'Courier New', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #app {
+      height: 100vh;
+      width: 100vw;
+      display: grid;
+      grid-template-rows: var(--header-h) 1fr var(--footer-h);
+      grid-template-columns: 1fr;
+      position: relative;
     }
 
     /* Header */
-    .tar-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    .command-header {
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+      border-bottom: 2px solid var(--accent-primary);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 15px;
+      padding: 0 20px;
+      box-shadow: var(--shadow);
+      position: relative;
       z-index: 1000;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 
-    .tar-logo {
+    .header-left {
       display: flex;
       align-items: center;
-      color: white;
+      gap: 15px;
+    }
+
+    .aegis-logo {
+      width: 40px;
+      height: 40px;
+      background: radial-gradient(circle at 30% 30%, var(--accent-primary), #00aa33);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-weight: bold;
       font-size: 16px;
-    }
-
-    .tar-logo::before {
-      content: "🕸";
-      margin-left: 8px;
-      font-size: 20px;
-    }
-
-    .threat-level {
-      background: #ff4444;
-      color: white;
-      padding: 5px 10px;
-      border-radius: 15px;
-      font-size: 12px;
-      font-weight: bold;
+      color: var(--bg-primary);
       animation: pulse 2s infinite;
     }
 
     @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.7; }
-      100% { opacity: 1; }
+      0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 65, 0.5); }
+      50% { box-shadow: 0 0 20px rgba(0, 255, 65, 0.8); }
     }
 
-    /* Bottom Control Panel */
-    .control-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 180px;
-      background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
-      z-index: 1000;
-      border-top: 2px solid #3498db;
-    }
-
-    .control-tabs {
-      display: flex;
-      height: 50px;
-      background: #1a252f;
-    }
-
-    .control-tab {
-      flex: 1;
-      background: #2c3e50;
-      color: white;
-      border: none;
-      padding: 10px 5px;
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
-      border-right: 1px solid #34495e;
-      transition: all 0.3s;
-    }
-
-    .control-tab.active {
-      background: #3498db;
-      color: white;
-    }
-
-    .control-tab:hover {
-      background: #34495e;
-    }
-
-    .control-content {
-      height: 100px;
-      overflow-y: auto;
-      padding: 10px;
-    }
-
-    .tab-panel {
-      display: none;
-    }
-
-    .tab-panel.active {
-      display: block;
-    }
-
-    /* Military Action Buttons */
-    .action-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      height: 100%;
-    }
-
-    .action-btn {
-      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 8px;
-      font-size: 10px;
-      font-weight: bold;
-      cursor: pointer;
+    .system-title {
       display: flex;
       flex-direction: column;
+    }
+
+    .title-main {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent-primary);
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+
+    .title-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: normal;
+    }
+
+    .header-center {
+      display: flex;
       align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      gap: 20px;
     }
 
-    .action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    .threat-level {
+      background: var(--bg-tertiary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--accent-secondary);
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--accent-secondary);
+      animation: blink 1s infinite;
     }
 
-    .action-btn.intercept {
-      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.3; }
     }
 
-    .action-btn.destroy {
-      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
     }
 
-    .action-btn.jam {
-      background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-    }
-
-    .action-btn.track {
-      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-    }
-
-    /* Statistics Panel */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+    .status-indicator {
+      display: flex;
+      align-items: center;
       gap: 8px;
+      background: var(--bg-tertiary);
+      padding: 6px 12px;
+      border-radius: 15px;
+      border: 1px solid var(--border-color);
+      font-size: 11px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Main Content */
+    .main-content {
+      position: relative;
+      overflow: hidden;
+    }
+
+    #viewDiv {
       height: 100%;
+      width: 100%;
+      background: var(--bg-primary);
     }
 
-    .stat-item {
-      background: rgba(52, 73, 94, 0.8);
-      border-radius: 8px;
-      padding: 8px;
-      text-align: center;
-      color: white;
+    /* Sidebar Panel */
+    .control-sidebar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: var(--sidebar-w);
+      height: 100%;
+      background: linear-gradient(180deg, rgba(26, 26, 26, 0.95) 0%, rgba(10, 10, 10, 0.98) 100%);
+      backdrop-filter: blur(10px);
+      border-left: 2px solid var(--accent-primary);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 900;
+      overflow-y: auto;
     }
 
-    .stat-number {
+    .control-sidebar.active {
+      transform: translateX(0);
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-title {
       font-size: 16px;
       font-weight: bold;
-      color: #3498db;
+      color: var(--accent-primary);
     }
 
-    .stat-label {
+    .close-sidebar {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .control-section {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--accent-primary);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .uav-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .uav-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .uav-card:hover, .uav-card.active {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+    }
+
+    .uav-id {
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--accent-primary);
+      margin-bottom: 5px;
+    }
+
+    .uav-status {
       font-size: 10px;
-      margin-top: 2px;
+      color: var(--text-secondary);
     }
 
-    /* Command Panel */
-    .command-grid {
+    .uav-indicator {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+    }
+
+    .operation-buttons {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      height: 100%;
+      gap: 10px;
+      margin-top: 15px;
     }
 
-    .command-btn {
-      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-      color: white;
-      border: 2px solid #3498db;
-      border-radius: 8px;
-      padding: 8px;
-      font-size: 10px;
+    .op-btn {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 12px 8px;
+      border-radius: 6px;
+      font-size: 11px;
       font-weight: bold;
       cursor: pointer;
+      transition: all 0.3s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      transition: all 0.3s;
+      gap: 5px;
     }
 
-    .command-btn:hover {
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-      border-color: white;
+    .op-btn:hover {
+      border-color: var(--accent-primary);
+      background: rgba(0, 255, 65, 0.1);
     }
 
-    /* Alert System */
-    .alert-system {
-      position: fixed;
-      top: 70px;
-      right: 10px;
-      width: 200px;
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 999;
+    .op-btn.surveillance { border-color: var(--accent-info); }
+    .op-btn.identification { border-color: var(--accent-warning); }
+    .op-btn.destruction { border-color: var(--accent-secondary); }
+    .op-btn.capture { border-color: var(--accent-primary); }
+
+    .op-btn.surveillance:hover { background: rgba(0, 153, 255, 0.1); }
+    .op-btn.identification:hover { background: rgba(255, 170, 0, 0.1); }
+    .op-btn.destruction:hover { background: rgba(255, 68, 68, 0.1); }
+    .op-btn.capture:hover { background: rgba(0, 255, 65, 0.1); }
+
+    /* Footer Controls */
+    .command-footer {
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+      border-top: 2px solid var(--accent-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 10px 20px;
+      box-shadow: 0 -4px 20px rgba(0, 255, 65, 0.1);
     }
 
-    .alert-item {
-      background: rgba(231, 76, 60, 0.9);
-      color: white;
-      padding: 8px;
-      margin-bottom: 5px;
-      border-radius: 5px;
+    .footer-btn {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 12px 16px;
+      border-radius: 8px;
       font-size: 11px;
-      animation: slideIn 0.5s ease-out;
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(100%); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* Mobile optimizations */
-    @media (max-width: 768px) {
-      .tar-logo {
-        font-size: 14px;
-      }
-      
-      .control-tab {
-        font-size: 10px;
-        padding: 8px 3px;
-      }
-      
-      .action-btn {
-        font-size: 9px;
-        padding: 6px;
-      }
-      
-      .stat-number {
-        font-size: 14px;
-      }
-      
-      .stat-label {
-        font-size: 9px;
-      }
-    }
-
-    /* Popup styling */
-    .esri-popup__content {
-      font-size: 10px; 
-      line-height: 1.4; 
-      text-align: right;
-      direction: rtl;
-    }
-
-    .flightradar-link {
-      color: #3498db; 
-      text-decoration: underline; 
+      font-weight: bold;
       cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      min-width: 70px;
     }
 
-    /* Demo warning */
-    .demo-warning {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.9);
-      color: #ff6b6b;
+    .footer-btn:hover {
+      border-color: var(--accent-primary);
+      background: rgba(0, 255, 65, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .footer-btn.primary {
+      background: var(--accent-primary);
+      color: var(--bg-primary);
+      border-color: var(--accent-primary);
+    }
+
+    .footer-btn.warning {
+      border-color: var(--accent-secondary);
+    }
+
+    .footer-btn.warning:hover {
+      background: rgba(255, 68, 68, 0.1);
+    }
+
+    /* Mission Panel */
+    .mission-panel {
+      position: absolute;
+      bottom: 18px;
+      left: 20px;
+      right: 20px;
+      background: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--accent-primary);
+      border-radius: 12px;
       padding: 20px;
-      border-radius: 10px;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      z-index: 800;
+    }
+
+    .mission-panel.active {
+      transform: translateY(0);
+    }
+
+    .mission-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .mission-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--accent-primary);
+    }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .mission-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
       text-align: center;
-      z-index: 10000;
-      border: 2px solid #ff6b6b;
-      display: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
 
-    .demo-warning.show {
-      display: block;
-      animation: fadeIn 0.5s ease-out;
+    .mission-card:hover {
+      border-color: var(--accent-primary);
+      transform: scale(1.05);
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .mission-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: var(--accent-primary);
+    }
+
+    .mission-name {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .mission-desc {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    /* Intelligence Panel */
+    .intel-panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 280px;
+      background: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--accent-primary);
+      border-radius: 12px;
+      padding: 15px;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 800;
+    }
+
+    .intel-panel.active {
+      transform: translateX(0);
+    }
+
+    .intel-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .intel-item:last-child {
+      border-bottom: none;
+    }
+
+    .intel-icon {
+      width: 30px;
+      height: 30px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--accent-primary);
+    }
+
+    .intel-content {
+      flex: 1;
+    }
+
+    .intel-title {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    .intel-desc {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    /* Toast Notifications */
+    .toast {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--accent-primary);
+      border-radius: 8px;
+      padding: 15px 20px;
+      max-width: 300px;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      z-index: 1100;
+      font-size: 12px;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.warning {
+      border-color: var(--accent-secondary);
+      background: rgba(255, 68, 68, 0.1);
+    }
+
+    .toast.success {
+      border-color: var(--accent-primary);
+      background: rgba(0, 255, 65, 0.1);
+    }
+
+    /* Mobile Optimizations */
+    @media (max-width: 768px) {
+      .control-sidebar {
+        width: 100vw;
+      }
+      
+      .mission-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .intel-panel {
+        width: calc(100vw - 40px);
+      }
+      
+      .header-center {
+        display: none;
+      }
+      
+      .title-sub {
+        display: none;
+      }
+    }
+
+    /* Tactical Grid Overlay */
+    .tactical-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      opacity: 0.3;
+      z-index: 1;
     }
   </style>
 </head>
 <body>
-  <!--########## Header ###########-->
-  <div class="tar-header">
-    <div class="tar-logo">سامانه تار - TAR C4ISR</div>
-    <div class="threat-level" id="threatLevel">سطح تهدید: متوسط</div>
+  <div id="app">
+    <!-- Command Header -->
+    <header class="command-header">
+      <div class="header-left">
+        <div class="aegis-logo">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="system-title">
+          <div class="title-main">AEGIS C4ISR</div>
+          <div class="title-sub">Advanced UAV Command & Control</div>
+        </div>
+      </div>
+      <div class="header-center">
+        <div class="threat-level">THREAT LEVEL: HIGH</div>
+      </div>
+      <div class="header-right">
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span>OPERATIONAL</span>
+        </div>
+        <div class="status-indicator">
+          <i class="fas fa-satellite-dish"></i>
+          <span>12 UAVs</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="tactical-grid"></div>
+      <div id="viewDiv" role="application" aria-label="Tactical Operations Map"></div>
+      
+      <!-- Control Sidebar -->
+      <aside class="control-sidebar" id="controlSidebar">
+        <div class="sidebar-header">
+          <h2 class="sidebar-title">UAV CONTROL</h2>
+          <button class="close-sidebar" id="closeSidebar">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- UAV Assets Section -->
+        <section class="control-section">
+          <h3 class="section-title">
+            <i class="fas fa-fighter-jet"></i>
+            ACTIVE UAV ASSETS
+          </h3>
+          <div class="uav-grid" id="uavGrid">
+            <!-- UAV cards will be dynamically generated -->
+          </div>
+        </section>
+
+        <!-- Operations Section -->
+        <section class="control-section">
+          <h3 class="section-title">
+            <i class="fas fa-crosshairs"></i>
+            SIDC OPERATIONS
+          </h3>
+          <div class="operation-buttons">
+            <button class="op-btn surveillance" data-op="surveillance">
+              <i class="fas fa-eye"></i>
+              SURVEILLANCE
+            </button>
+            <button class="op-btn identification" data-op="identification">
+              <i class="fas fa-search"></i>
+              IDENTIFICATION
+            </button>
+            <button class="op-btn destruction" data-op="destruction">
+              <i class="fas fa-bomb"></i>
+     
+              <a href="google.com">DESTRUCTION</a>
+           
+            </button>
+            <button class="op-btn capture" data-op="capture">
+              <i class="fas fa-hand-paper"></i>
+              CAPTURE
+            </button>
+          </div>
+        </section>
+
+        <!-- Target Analysis -->
+        <section class="control-section">
+          <h3 class="section-title">
+            <i class="fas fa-bullseye"></i>
+            TARGET ANALYSIS
+          </h3>
+          <div id="targetInfo" style="font-size: 11px; color: var(--text-secondary);">
+            Select a target on the map for detailed analysis
+          </div>
+        </section>
+      </aside>
+
+      <!-- Intelligence Panel -->
+      <aside class="intel-panel" id="intelPanel">
+        <h3 class="section-title">
+          <i class="fas fa-brain"></i>
+          REAL-TIME INTELLIGENCE
+        </h3>
+        <div class="intel-item">
+          <div class="intel-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="intel-content">
+            <div class="intel-title">THREAT DETECTED</div>
+            <div class="intel-desc">Unknown UAV at grid 342-127</div>
+          </div>
+        </div>
+        <div class="intel-item">
+          <div class="intel-icon">
+            <i class="fas fa-satellite"></i>
+          </div>
+          <div class="intel-content">
+            <div class="intel-title">COMM INTERCEPT</div>
+            <div class="intel-desc">Encrypted transmission detected</div>
+          </div>
+        </div>
+        <div class="intel-item">
+          <div class="intel-icon">
+            <i class="fas fa-map-marked-alt"></i>
+          </div>
+          <div class="intel-content">
+            <div class="intel-title">AREA SECURED</div>
+            <div class="intel-desc">Zone Alpha-7 under surveillance</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Mission Panel -->
+      <aside class="mission-panel" id="missionPanel">
+        <div class="mission-header">
+          <h3 class="mission-title">MISSION PLANNING</h3>
+          <button class="close-sidebar" id="closeMission">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="mission-grid">
+          <div class="mission-card" data-mission="patrol">
+            <div class="mission-icon">
+              <i class="fas fa-route"></i>
+            </div>
+            <div class="mission-name">PATROL</div>
+            <div class="mission-desc">Automated area patrol</div>
+          </div>
+          <div class="mission-card" data-mission="recon">
+            <div class="mission-icon">
+              <i class="fas fa-binoculars"></i>
+            </div>
+            <div class="mission-name">RECONNAISSANCE</div>
+            <div class="mission-desc">Intelligence gathering</div>
+          </div>
+          <div class="mission-card" data-mission="escort">
+            <div class="mission-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="mission-name">ESCORT</div>
+            <div class="mission-desc">Asset protection</div>
+          </div>
+          <div class="mission-card" data-mission="strike">
+            <div class="mission-icon">
+              <i class="fas fa-crosshairs"></i>
+            </div>
+            <div class="mission-name">STRIKE</div>
+            <div class="mission-desc">Precision engagement</div>
+          </div>
+          <div class="mission-card" data-mission="intercept">
+            <div class="mission-icon">
+              <i class="fas fa-fighter-jet"></i>
+            </div>
+            <div class="mission-name">INTERCEPT</div>
+            <div class="mission-desc">Target interception</div>
+          </div>
+          <div class="mission-card" data-mission="support">
+            <div class="mission-icon">
+              <i class="fas fa-hands-helping"></i>
+            </div>
+            <div class="mission-name">SUPPORT</div>
+            <div class="mission-desc">Tactical support</div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Command Footer -->
+    <footer class="command-footer">
+      <button class="footer-btn" id="btnIntel">
+        <i class="fas fa-brain"></i>
+        <span>INTEL</span>
+      </button>
+      <button class="footer-btn" id="btnMission">
+        <i class="fas fa-tasks"></i>
+        <span>MISSIONS</span>
+      </button>
+      <button class="footer-btn primary" id="btnControl">
+        <i class="fas fa-sliders-h"></i>
+        <span>CONTROL</span>
+      </button>
+      <button class="footer-btn warning" id="btnEmergency">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>EMERGENCY</span>
+      </button>
+      <button class="footer-btn" id="btnComm">
+        <i class="fas fa-broadcast-tower"></i>
+        <span>COMMS</span>
+      </button>
+    </footer>
   </div>
 
-  <!--########## Map View ##########-->
-  <div id="viewDiv"></div>
-
-  <!-- Alert System -->
-  <div class="alert-system" id="alertSystem"></div>
-
-  <!-- Control Panel -->
-  <div class="control-panel">
-    <div class="control-tabs">
-      <button class="control-tab active" onclick="showTab('actions')">عملیات نظامی</button>
-      <button class="control-tab" onclick="showTab('stats')">آمار</button>
-      <button class="control-tab" onclick="showTab('command')">فرماندهی</button>
-      <button class="control-tab" onclick="showTab('intel')">اطلاعات</button>
-    </div>
-      <div class="control-content">
-      <!-- Military Actions Tab -->
-      <div id="actions" class="tab-panel active">
-        
-
-        <div class="action-grid">
-          <button class="action-btn intercept" onclick="militaryAction('intercept')">
-            🚁<br>رهگیری
-          </button>
-          <button class="action-btn destroy" onclick="militaryAction('destroy')">
-            💥<br>انهدام
-          </button>
-          <button class="action-btn jam" onclick="militaryAction('jam')">
-            📡<br>تداخل
-          </button>
-          <button class="action-btn track" onclick="militaryAction('track')">
-            🎯<br>ردیابی
-          </button>
-        </div>
-      </div>
-
-      <!-- Statistics Tab -->
-      <div id="stats" class="tab-panel">
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-number" id="droneCount">0</div>
-            <div class="stat-label">پهپاد</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number" id="militaryCount">0</div>
-            <div class="stat-label">نظامی</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number" id="civilianCount">0</div>
-            <div class="stat-label">غیرنظامی</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Command Tab -->
-      <div id="command" class="tab-panel">
-        <div class="command-grid">
-          <button class="command-btn" onclick="commandAction('alert')">
-            🚨<br>آژیر خطر
-          </button>
-          <button class="command-btn" onclick="commandAction('scramble')">
-            ✈️<br>اعزام جنگنده
-          </button>
-          <button class="command-btn" onclick="commandAction('defense')">
-            🛡<br>دفاع ملی
-          </button>
-          <button class="command-btn" onclick="commandAction('coordination')">
-            📞<br>هماهنگی
-          </button>
-        </div>
-      </div>
-
-      <!-- Intelligence Tab -->
-      <div id="intel" class="tab-panel">
-        <div style="color: white; font-size: 11px; line-height: 1.4;">
-          <div><strong>وضعیت عملیاتی:</strong> آماده باش</div>
-          <div><strong>پوشش راداری:</strong> ۱۰۰٪</div>
-          <div><strong>سیستم دفاعی:</strong> فعال</div>
-          <div><strong>ارتباطات:</strong> امن</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Demo Warning Modal -->
-  <div class="demo-warning" id="demoWarning">
-    <h3>⚠️ هشــــدار ⚠️</h3>
-    <p>
-این نرم افزار 
-هیچ گونه ضمانت یا گارانتی در مورد عملکرد، کیفیت یا مناسب بودن آن برای یک هدف خاص ارائه شده است</p>
-    <p>the software is provided without any guarantees or warranties regarding its functionality, quality, or suitability for a particular purpose</p>
-    <button onclick="closeDemoWarning()" style="margin-top: 10px; padding: 5px 15px; background: #3498db; color: white; border: none; border-radius: 5px;">متوجه شدم</button>
-  </div>
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" role="status" aria-live="assertive"></div>
 
   <script>
+    // Initialize ArcGIS Map
     require([
       "esri/Map",
       "esri/views/MapView",
       "esri/Graphic",
       "esri/layers/GraphicsLayer",
-      "esri/widgets/BasemapToggle"
-    ], 
-    
-    function(Map, MapView, Graphic, GraphicsLayer, BasemapToggle) {
-      const map = new Map({ basemap: "satellite" });
+      "esri/widgets/BasemapToggle",
+      "esri/geometry/Point",
+      "esri/symbols/SimpleMarkerSymbol",
+      "esri/symbols/TextSymbol",
+      "esri/PopupTemplate"
+    ], function(Map, MapView, Graphic, GraphicsLayer, BasemapToggle, Point, SimpleMarkerSymbol, TextSymbol, PopupTemplate) {
+      
+      // Initialize map with military satellite basemap
+      const map = new Map({ 
+        basemap: "satellite"
+      });
+      
       const view = new MapView({
         container: "viewDiv",
         map: map,
-        center: [53, 30],
-        zoom: 4
+        center: [-98.5795, 39.8283], // Center of USA
+        zoom: 6,
+        constraints: {
+          minZoom: 3,
+          maxZoom: 18
+        }
       });
 
-      const basemapToggle = new BasemapToggle({
-        view: view,
-        nextBasemap: "streets-vector"
+      // Add basemap toggle
+      const basemapToggle = new BasemapToggle({ 
+        view: view, 
+        nextBasemap: "streets-navigation-vector" 
       });
-      view.ui.add(basemapToggle, "top-left");
+      view.ui.add(basemapToggle, "top-right");
 
-      const droneLayer = new GraphicsLayer();
-      const militaryLayer = new GraphicsLayer();
-      const civilianLayer = new GraphicsLayer();
-      map.addMany([civilianLayer, militaryLayer, droneLayer]);
+      // Create layers for different asset types
+      const friendlyUAVLayer = new GraphicsLayer({ title: "Friendly UAVs" });
+      const enemyUAVLayer = new GraphicsLayer({ title: "Enemy UAVs" });
+      const neutralLayer = new GraphicsLayer({ title: "Neutral Assets" });
+      const threatLayer = new GraphicsLayer({ title: "Threats" });
+      
+      map.addMany([friendlyUAVLayer, enemyUAVLayer, neutralLayer, threatLayer]);
 
-      let isFirstLoad = true;
+      // UAV asset data
+      let uavAssets = [
+        { id: "UAV-001", type: "MQ-9 Reaper", status: "OPERATIONAL", lat: 39.7392, lng: -104.9903, mission: "PATROL" },
+        { id: "UAV-002", type: "RQ-4 Global Hawk", status: "SURVEILLANCE", lat: 38.9072, lng: -77.0369, mission: "RECON" },
+        { id: "UAV-003", type: "MQ-1 Predator", status: "ENGAGED", lat: 34.0522, lng: -118.2437, mission: "STRIKE" },
+        { id: "UAV-004", type: "RQ-11 Raven", status: "OPERATIONAL", lat: 41.8781, lng: -87.6298, mission: "PATROL" },
+        { id: "UAV-005", type: "MQ-8 Fire Scout", status: "MAINTENANCE", lat: 29.7604, lng: -95.3698, mission: "SUPPORT" },
+        { id: "UAV-006", type: "X-47B UCAS", status: "OPERATIONAL", lat: 37.7749, lng: -122.4194, mission: "ESCORT" }
+      ];
+
+      let enemyAssets = [
+        { id: "TGT-001", type: "Unknown UAV", threat: "HIGH", lat: 40.7128, lng: -74.0060 },
+        { id: "TGT-002", type: "Hostile Drone", threat: "MEDIUM", lat: 25.7617, lng: -80.1918 }
+      ];
+
+      let selectedUAV = null;
       let selectedTarget = null;
-      let alertCount = 0;
 
-      // Tab switching function
-      window.showTab = function(tabName) {
-        // Hide all tabs
-        document.querySelectorAll('.tab-panel').forEach(panel => {
-          panel.classList.remove('active');
-        });
-        document.querySelectorAll('.control-tab').forEach(tab => {
-          tab.classList.remove('active');
-        });
+      // Symbol configurations
+      const friendlySymbol = new SimpleMarkerSymbol({
+        color: [0, 255, 65, 0.8],
+        size: "16px",
+        outline: { color: [0, 255, 65], width: 2 }
+      });
 
-        // Show selected tab
-        document.getElementById(tabName).classList.add('active');
-        event.target.classList.add('active');
-      };
+      const enemySymbol = new SimpleMarkerSymbol({
+        color: [255, 68, 68, 0.8],
+        size: "16px",
+        outline: { color: [255, 68, 68], width: 2 }
+      });
 
-      // Military action functions
-      window.militaryAction = function(action) {
-        showDemoWarning();
+      const neutralSymbol = new SimpleMarkerSymbol({
+        color: [255, 170, 0, 0.8],
+        size: "14px",
+        outline: { color: [255, 170, 0], width: 2 }
+      });
+
+      // Initialize UAV graphics
+      function initializeAssets() {
+        // Clear existing graphics
+        friendlyUAVLayer.removeAll();
+        enemyUAVLayer.removeAll();
         
-        const actions = {
-          'intercept': 'عملیات رهگیری شروع شد',
-          'destroy': 'دستور انهدام صادر شد',
-          'jam': 'سیستم تداخل فعال شد',
-          'track': 'ردیابی هدف آغاز شد'
-        };
-
-        addAlert(actions[action]);
-        updateThreatLevel();
-        
-        // Simulate action feedback
-        setTimeout(() => {
-          addAlert(`عملیات ${actions[action]} با موفقیت انجام شد`);
-        }, 3000);
-      };
-
-      window.commandAction = function(action) {
-        showDemoWarning();
-        
-        const commands = {
-          'alert': 'آژیر خطر فعال شد',
-          'scramble': 'جنگنده آماده اعزام',
-          'defense': 'سیستم دفاع ملی فعال شد',
-          'coordination': 'ارتباط با مراکز فرماندهی برقرار شد'
-        };
-
-        addAlert(commands[action]);
-        updateThreatLevel();
-      };
-
-      function showDemoWarning() {
-        document.getElementById('demoWarning').classList.add('show');
-      }
-
-      window.closeDemoWarning = function() {
-        document.getElementById('demoWarning').classList.remove('show');
-      };
-
-      function addAlert(message) {
-        const alertSystem = document.getElementById('alertSystem');
-        const alertItem = document.createElement('div');
-        alertItem.className = 'alert-item';
-        alertItem.textContent = `${new Date().toLocaleTimeString('fa-IR')}: ${message}`;
-        
-        alertSystem.insertBefore(alertItem, alertSystem.firstChild);
-        
-        // Remove old alerts (keep only 5)
-        if (alertSystem.children.length > 5) {
-          alertSystem.removeChild(alertSystem.lastChild);
-        }
-
-        alertCount++;
-      }
-
-      function updateThreatLevel() {
-        const threatLevel = document.getElementById('threatLevel');
-        const levels = ['کم', 'متوسط', 'بالا', 'بحرانی'];
-        const currentLevel = Math.min(Math.floor(alertCount / 2), 3);
-        threatLevel.textContent = `سطح تهدید: ${levels[currentLevel]}`;
-        
-        const colors = ['#27ae60', '#f39c12', '#e67e22', '#e74c3c'];
-        threatLevel.style.background = colors[currentLevel];
-      }
-
-      function updateStats() {
-        document.getElementById('droneCount').textContent = droneLayer.graphics.length;
-        document.getElementById('militaryCount').textContent = militaryLayer.graphics.length;
-        document.getElementById('civilianCount').textContent = civilianLayer.graphics.length;
-      }
-
-      // Data fetching functions (same as original)
-      async function fetchAdsbData() {
-        try {
-          const response = await fetch('https://api.adsb.lol/v2/mil', {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-              'Accept': 'application/json',
-              'Origin': window.location.origin
-            }
+        // Add friendly UAVs
+        uavAssets.forEach(uav => {
+          const point = new Point({
+            longitude: uav.lng,
+            latitude: uav.lat
           });
-          const text = await response.text();
-          const cleanedText = text.replace(/^while\(1\);/, '').trim();
-          const data = JSON.parse(cleanedText);
-          return Array.isArray(data) ? data : data.aircraft || data.ac || [];
-        } catch (error) {
-          return [];
-        }
-      }
 
-      async function fetchFlightradarData() {
-        try {
-          const response = await fetch('https://data-cloud.flightradar24.com/zones/fcgi/feeds.js', {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-              'Accept': 'application/json'
-            }
+          const graphic = new Graphic({
+            geometry: point,
+            symbol: friendlySymbol,
+            attributes: uav,
+            popupTemplate: new PopupTemplate({
+              title: "{id} - {type}",
+              content: `
+                <strong>Status:</strong> {status}<br>
+                <strong>Mission:</strong> {mission}<br>
+                <strong>Type:</strong> {type}
+              `
+            })
           });
-          const text = await response.text();
-          const cleanedText = text.replace(/^while\(1\);/, '').trim();
-          const data = JSON.parse(cleanedText);
-          const flights = [];
-          for (const [key, value] of Object.entries(data)) {
-            if (!Array.isArray(value)) continue;
-            flights.push({
-              id: key,
-              lat: value[1],
-              lon: value[2],
-              track: value[3] || 0,
-              alt_baro: value[4] || 'نامشخص',
-              gs: value[5] || 'نامشخص',
-              flight: value[13] || 'نامشخص',
-              hex: value[0] || 'نامشخص',
-              type: 'civilian',
-              model: value[8] || 'نامشخص',
-              r: value[9] || 'نامشخص',
-              category: value[11] || 'نامشخص'
-            });
-          }
-          return flights;
-        } catch (error) {
-          return [];
-        }
-      }
 
-      async function fetchOpenSkyData() {
-        try {
-          const response = await fetch('https://opensky-network.org/api/states/all', {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-              'Accept': 'application/json'
-            }
-          });
-          const data = await response.json();
-          return (data.states || []).map(flight => ({
-            icao24: flight[0],
-            callsign: flight[1]?.trim() || 'نامشخص',
-            lon: flight[5],
-            lat: flight[6],
-            alt_baro: flight[7] || 'نامشخص',
-            velocity: flight[9] || 'نامشخص',
-            heading: flight[10] || 0,
-            type: 'aircraft',
-            hex: flight[0] || 'نامشخص',
-            squawk: flight[14] || 'نامشخص',
-            emergency: flight[15] || 'نامشخص',
-            baro_rate: flight[11] || 'نامشخص',
-            alt_geom: flight[13] || 'نامشخص',
-            nav_modes: flight[16] || [],
-            nac_p: flight[17] || 'نامشخص',
-            nac_v: flight[18] || 'نامشخص',
-            sil: flight[19] || 'نامشخص',
-            sil_type: flight[20] || 'نامشخص',
-            gva: flight[21] || 'نامشخص',
-            sda: flight[22] || 'نامشخص',
-            alert: flight[23] || 'نامشخص',
-            spi: flight[24] || 'نامشخص'
-          }));
-        } catch (error) {
-          return [];
-        }
-      }
-      
-      function getSampleDroneData() {
-        return [];
-      }
-
-      function identifyFlightType(flight) {
-        if ((flight.gs < 100 || flight.velocity < 100) || flight.alt_baro < 5000 ||
-            ['DJI', 'Mq', 'Bayraktar', 'Mavic','shahed'].some(model => flight.model?.includes(model) || flight.t?.includes(model))) {
-          return 'drone';
-        }
-        if (!flight.callsign && !flight.flight || flight.callsign === 'نامشخص' && flight.flight === 'نامشخص') {
-          return 'unknown';
-        }
-        if (flight.type === 'military' && ['Eurofighter', 'F-16', 'F-35', 'F-22', 'Su-27', 'MiG-29'].some(model => flight.t?.includes(model) || flight.model?.includes(model))) {
-          return 'fighter';
-        }
-        if (flight.category?.includes('Naval') || flight.t?.includes('P-8') || flight.t?.includes('Poseidon')) {
-          return 'navy';
-        }
-        if (flight.hex?.startsWith('7B') || flight.r?.startsWith('EP-')) {
-          return 'iranian';
-        }
-        return flight.type === 'military' ? 'military' : 'civilian';
-      }
-
-      function getFlightColor(flight) {
-        const flightType = identifyFlightType(flight);
-        switch (flightType) {
-          case 'drone': return 'black';
-          case 'unknown': return 'yellow';
-          case 'fighter': return 'orange';
-          case 'navy': return 'lightblue';
-          case 'iranian': return 'green';
-          case 'military': return 'red';
-          default: return 'blue';
-        }
-      }
-
-      function getIconSize(zoom) {
-        if (zoom >= 11) return "12px";
-        if (zoom >= 8) return "20px";
-        if (zoom >= 6) return "28px";
-        if (zoom >= 3) return "36px";
-        return "18px";
-      }
-
-      function createMilitaryPopupContent(flight) {
-        const flightradarLink = flight.hex && flight.flight !== 'نامشخص' ? 
-          `<a class="flightradar-link" href="https://www.flightradar24.com/${flight.hex}/${flight.flight}/3d" target="_blank">نمایش ۳بعدی مسیر</a>` : '';
-        
-        const actionButtons = `
-          <div style="margin-top: 10px; direction: ltr;">
-            <button onclick="window.parent.militaryAction('track')" style="background: #27ae60; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">ردیابی</button>
-            <button onclick="window.parent.militaryAction('intercept')" style="background: #f39c12; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">رهگیری</button>
-            <button onclick="window.parent.militaryAction('jam')" style="background: #9b59b6; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">تداخل</button>
-          </div>
-        `;
-        
-        return `
-          <b>نوع منبع داده: </b>${flight.type || 'نامشخص'}<br>
-          <b>شناسه هگزا: </b>${flight.hex || 'نامشخص'}<br>
-          <b>شناسه پرواز: </b>${flight.flight || flight.callsign || 'نامشخص'}<br>
-          <b>شماره ثبت: </b>${flight.r || 'نامشخص'}<br>
-          <b>نوع هواپیما: </b>${flight.t || flight.model || 'نامشخص'}<br>
-          <b>ارتفاع بارومتریک (فوت): </b>${flight.alt_baro || 'نامشخص'}<br>
-          <b>ارتفاع هندسی (فوت): </b>${flight.alt_geom || 'نامشخص'}<br>
-          <b>سرعت زمینی (گره): </b>${flight.gs || flight.velocity || 'نامشخص'}<br>
-          <b>جهت حرکت (درجه): </b>${flight.track || flight.heading || 'نامشخص'}<br>
-          <b>کد اسکواک: </b>${flight.squawk || 'نامشخص'}<br>
-          <b>وضعیت اضطراری: </b>${flight.emergency || 'نامشخص'}<br>
-          <b>عرض جغرافیایی: </b>${flight.lat || 'نامشخص'}<br>
-          <b>طول جغرافیایی: </b>${flight.lon || 'نامشخص'}<br>
-          ${flightradarLink}
-          ${actionButtons}
-        `;
-      }
-
-      function createCivilianPopupContent(flight) {
-        const flightradarLink = flight.hex && flight.flight !== 'نامشخص' ? 
-          `<a class="flightradar-link" href="https://www.flightradar24.com/${flight.flight}/${flight.hex}/3d" target="_blank">نمایش سه بعدی و مسیر</a>` : '';
-        return `
-          <b>نوع منبع داده: </b>${flight.type || 'نامشخص'}<br>
-          <b>شناسه هگزا: </b>${flight.hex || 'نامشخص'}<br>
-          <b>شناسه پرواز: </b>${flight.flight || flight.callsign || 'نامشخص'}<br>
-          <b>شماره ثبت: </b>${flight.r || 'نامشخص'}<br>
-          <b>نوع هواپیما: </b>${flight.model || 'نامشخص'}<br>
-          <b>ارتفاع بارومتریک (فوت): </b>${flight.alt_baro || 'نامشخص'}<br>
-          <b>سرعت زمینی (گره): </b>${flight.gs || flight.velocity || 'نامشخص'}<br>
-          <b>جهت حرکت (درجه): </b>${flight.track || flight.heading || 'نامشخص'}<br>
-          <b>عرض جغرافیایی: </b>${flight.lat || 'نامشخص'}<br>
-          <b>طول جغرافیایی: </b>${flight.lon || 'نامشخص'}<br>
-          ${flightradarLink}
-        `;
-      }
-
-      function createDronePopupContent(drone) {
-        const actionButtons = `
-          <div style="margin-top: 10px; direction: ltr;">
-            <button onclick="window.parent.militaryAction('track')" style="background: #27ae60; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">ردیابی</button>
-            <button onclick="window.parent.militaryAction('intercept')" style="background: #f39c12; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">رهگیری</button>
-            <button onclick="window.parent.militaryAction('jam')" style="background: #9b59b6; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">تداخل</button>
-            <button onclick="window.parent.militaryAction('destroy')" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">انهدام</button>
-          </div>
-        `;
-        
-        return `
-          <b>نوع منبع داده: </b>${drone.type || 'نامشخص'}<br>
-          <b>شناسه پهپاد: </b>${drone.id || 'نامشخص'}<br>
-          <b>مدل: </b>${drone.model || 'نامشخص'}<br>
-          <b>عرض جغرافیایی: </b>${drone.lat || 'نامشخص'}<br>
-          <b>طول جغرافیایی: </b>${drone.lon || 'نامشخص'}<br>
-          <b>ارتفاع بارومتریک (فوت): </b>${drone.alt_baro || 'نامشخص'}<br>
-          <b>سرعت زمینی (گره): </b>${drone.velocity || 'نامشخص'}<br>
-          <b>جهت حرکت (درجه): </b>${drone.heading || 'نامشخص'}<br>
-          <b>نوع: </b>پهپاد<br>
-          ${actionButtons}
-        `;
-      }
-
-      async function updateMarkers() {
-        const adsbFlights = await fetchAdsbData();
-        const flightradarFlights = await fetchFlightradarData();
-        const openSkyFlights = await fetchOpenSkyData();
-        const droneData = getSampleDroneData();
-        const allFlights = [...adsbFlights.map(f => ({ ...f, type: 'military' })), ...flightradarFlights, ...openSkyFlights, ...droneData];
-
-        civilianLayer.removeAll();
-        militaryLayer.removeAll();
-        droneLayer.removeAll();
-
-        const iconSize = getIconSize(view.zoom);
-
-        allFlights.forEach(flight => {
-          if (flight.lat && flight.lon) {
-            const flightType = identifyFlightType(flight);
-            const layer = flightType === 'drone' ? droneLayer : 
-                         (flightType === 'military' || flightType === 'fighter' || flightType === 'navy' || flightType === 'iranian') ? militaryLayer : 
-                         civilianLayer;
-
-            const graphic = new Graphic({
-              geometry: {
-                type: "point",
-                latitude: flight.lat,
-                longitude: flight.lon
-              },
-              symbol: {
-                type: "picture-marker",
-                url: flightType === 'drone' ? "https://img.icons8.com/ios/40/drone-bottom-view.png" :
-                     flightType === 'unknown' ? "https://www.iconsdb.com/icons/preview/yellow/airplane-3-xl.png" :
-                     flightType === 'fighter' ? "https://www.iconsdb.com/icons/preview/orange/airplane-3-xl.png" :
-                     flightType === 'navy' ? "https://www.iconsdb.com/icons/preview/orange/airplane-3-xl.png" :
-                     flightType === 'iranian' ? "https://www.iconsdb.com/icons/preview/green/airplane-3-xl.png" :
-                     flightType === 'military' ? "https://www.iconsdb.com/icons/preview/red/airplane-3-xl.png" :
-                     "https://img.icons8.com/external-soft-fill-juicy-fish/60/external-airplane-internet-of-things-soft-fill-soft-fill-juicy-fish.png",
-                width: iconSize,
-                height: iconSize,
-                angle: flight.track || flight.heading || 0
-              },
-              attributes: flight,
-              popupTemplate: {
-                title: flightType === 'drone' ? "🚁 پهپاد - TAR" :
-                       flightType === 'unknown' ? "❄شیء ناشناس" :
-                       flightType === 'fighter' ? "⚔️ جنگنده نظامی" :
-                       flightType === 'navy' ? "🚢 هواپیمای نیروی دریایی" :
-                       flightType === 'iranian' ? "🇮🇷 هواپیمای ایرانی" :
-                       flightType === 'military' ? "🎖 پرواز نظامی" : "✈️ پرواز غیرنظامی",
-                content: flightType === 'drone' ? createDronePopupContent(flight) :
-                         (flightType === 'military' || flightType === 'fighter' || flightType === 'navy' || flightType === 'iranian') ? createMilitaryPopupContent(flight) :
-                         createCivilianPopupContent(flight)
-              }
-            });
-            layer.add(graphic);
-          }
+          friendlyUAVLayer.add(graphic);
         });
 
-        updateStats();
+        // Add enemy/threat assets
+        enemyAssets.forEach(enemy => {
+          const point = new Point({
+            longitude: enemy.lng,
+            latitude: enemy.lat
+          });
 
-        if (isFirstLoad && allFlights.length > 0) {
-          const bounds = allFlights.filter(f => f.lat && f.lon).map(f => [f.lat, f.lon]);
-          if (bounds.length > 0) {
-            view.goTo({ target: bounds });
-            isFirstLoad = false;
-          }
-        }
+          const graphic = new Graphic({
+            geometry: point,
+            symbol: enemySymbol,
+            attributes: enemy,
+            popupTemplate: new PopupTemplate({
+              title: "{id} - {type}",
+              content: `
+                <strong>Threat Level:</strong> {threat}<br>
+                <strong>Type:</strong> {type}<br>
+                <strong>Status:</strong> Under surveillance
+              `
+            })
+          });
+
+          enemyUAVLayer.add(graphic);
+        });
+
+        updateUAVGrid();
       }
 
-      view.watch("zoom", () => {
-        const iconSize = getIconSize(view.zoom);
-        [civilianLayer, militaryLayer, droneLayer].forEach(layer => {
-          layer.graphics.forEach(graphic => {
-            graphic.symbol.width = iconSize;
-            graphic.symbol.height = iconSize;
-          });
+      // Update UAV grid in sidebar
+      function updateUAVGrid() {
+        const uavGrid = document.getElementById('uavGrid');
+        uavGrid.innerHTML = '';
+
+        uavAssets.forEach(uav => {
+          const card = document.createElement('div');
+          card.className = 'uav-card';
+          card.dataset.uavId = uav.id;
+          
+          const statusColor = {
+            'OPERATIONAL': 'var(--accent-primary)',
+            'SURVEILLANCE': 'var(--accent-info)',
+            'ENGAGED': 'var(--accent-secondary)',
+            'MAINTENANCE': 'var(--accent-warning)'
+          }[uav.status] || 'var(--text-secondary)';
+
+          card.innerHTML = `
+            <div class="uav-indicator" style="background: ${statusColor}"></div>
+            <div class="uav-id">${uav.id}</div>
+            <div class="uav-status">${uav.type}</div>
+            <div class="uav-status">Status: ${uav.status}</div>
+          `;
+
+          card.addEventListener('click', () => selectUAV(uav));
+          uavGrid.appendChild(card);
+        });
+      }
+
+      // Select UAV
+      function selectUAV(uav) {
+        selectedUAV = uav;
+        
+        // Update UI
+        document.querySelectorAll('.uav-card').forEach(card => {
+          card.classList.remove('active');
+        });
+        document.querySelector(`[data-uav-id="${uav.id}"]`).classList.add('active');
+        
+        // Center map on selected UAV
+        view.goTo({
+          center: [uav.lng, uav.lat],
+          zoom: 10
+        });
+
+        showToast(`Selected ${uav.id} - ${uav.type}`, 'success');
+      }
+
+      // Handle map clicks for target selection
+      view.on("click", function(event) {
+        view.hitTest(event).then(function(response) {
+          if (response.results.length > 0) {
+            const graphic = response.results[0].graphic;
+            if (graphic.layer === enemyUAVLayer) {
+              selectedTarget = graphic.attributes;
+              updateTargetInfo(selectedTarget);
+              showToast(`Target selected: ${selectedTarget.id}`, 'warning');
+            }
+          }
         });
       });
 
-      // Initialize
-      updateMarkers();
-      setInterval(updateMarkers, 15000);
-      
-      // Initial system message
-      setTimeout(() => {
-        addAlert('سامانه رصد پهپادی تار آماده به کار است');
-      }, 1000);
+      // Update target info panel
+      function updateTargetInfo(target) {
+        const targetInfo = document.getElementById('targetInfo');
+        targetInfo.innerHTML = `
+          <strong>Target ID:</strong> ${target.id}<br>
+          <strong>Type:</strong> ${target.type}<br>
+          <strong>Threat Level:</strong> ${target.threat}<br>
+          <strong>Coordinates:</strong> ${target.lat.toFixed(4)}, ${target.lng.toFixed(4)}<br>
+          <strong>Status:</strong> Under surveillance
+        `;
+      }
+
+      // SIDC Operations
+      function executeOperation(operation) {
+        if (!selectedUAV) {
+          showToast('Please select a UAV first', 'warning');
+          return;
+        }
+
+        let message = '';
+        switch(operation) {
+          case 'surveillance':
+            message = `${selectedUAV.id} initiated surveillance operation`;
+            selectedUAV.mission = 'SURVEILLANCE';
+            selectedUAV.status = 'SURVEILLANCE';
+            break;
+          case 'identification':
+            if (!selectedTarget) {
+              showToast('Please select a target for identification', 'warning');
+              return;
+            }
+            message = `${selectedUAV.id} identifying target ${selectedTarget.id}`;
+            break;
+          case 'destruction':
+            if (!selectedTarget) {
+              showToast('Please select a target for engagement', 'warning');
+              return;
+            }
+            message = `${selectedUAV.id} engaging target ${selectedTarget.id} - WEAPONS FREE`;
+            selectedUAV.status = 'ENGAGED';
+            break;
+          case 'capture':
+            if (!selectedTarget) {
+              showToast('Please select a target for capture', 'warning');
+              return;
+            }
+            message = `${selectedUAV.id} executing capture protocol on ${selectedTarget.id}`;
+            break;
+        }
+
+        updateUAVGrid();
+        showToast(message, 'success');
+        
+        // Log operation
+        console.log(`[OPERATION] ${operation.toUpperCase()}: ${message}`);
+      }
+
+      // Mission execution
+      function executeMission(missionType) {
+        if (!selectedUAV) {
+          showToast('Please select a UAV for mission assignment', 'warning');
+          return;
+        }
+
+        selectedUAV.mission = missionType.toUpperCase();
+        selectedUAV.status = 'OPERATIONAL';
+        
+        updateUAVGrid();
+        showToast(`Mission ${missionType.toUpperCase()} assigned to ${selectedUAV.id}`, 'success');
+        
+        // Close mission panel
+        document.getElementById('missionPanel').classList.remove('active');
+      }
+
+      // Initialize the system
+      initializeAssets();
+
+      // Simulate real-time updates
+      setInterval(() => {
+        // Randomly update UAV positions slightly (simulate movement)
+        uavAssets.forEach(uav => {
+          uav.lat += (Math.random() - 0.5) * 0.001;
+          uav.lng += (Math.random() - 0.5) * 0.001;
+        });
+        
+        // Update graphics
+        initializeAssets();
+      }, 10000);
+
+      // UI Event Handlers
+      const controlSidebar = document.getElementById('controlSidebar');
+      const intelPanel = document.getElementById('intelPanel');
+      const missionPanel = document.getElementById('missionPanel');
+
+      // Footer button handlers
+      document.getElementById('btnControl').addEventListener('click', () => {
+        controlSidebar.classList.toggle('active');
+        intelPanel.classList.remove('active');
+        missionPanel.classList.remove('active');
+      });
+
+      document.getElementById('btnIntel').addEventListener('click', () => {
+        intelPanel.classList.toggle('active');
+        controlSidebar.classList.remove('active');
+        missionPanel.classList.remove('active');
+      });
+
+      document.getElementById('btnMission').addEventListener('click', () => {
+        missionPanel.classList.toggle('active');
+        controlSidebar.classList.remove('active');
+        intelPanel.classList.remove('active');
+      });
+
+      document.getElementById('btnEmergency').addEventListener('click', () => {
+        showToast('EMERGENCY PROTOCOL ACTIVATED - ALL UNITS RETURN TO BASE', 'warning');
+        // Emergency protocol logic here
+      });
+
+      document.getElementById('btnComm').addEventListener('click', () => {
+        showToast('Communications check - All units report status', 'success');
+        // Communications logic here
+      });
+
+      // Close buttons
+      document.getElementById('closeSidebar').addEventListener('click', () => {
+        controlSidebar.classList.remove('active');
+      });
+
+      document.getElementById('closeMission').addEventListener('click', () => {
+        missionPanel.classList.remove('active');
+      });
+
+      // Operation buttons
+      document.querySelectorAll('.op-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          executeOperation(btn.dataset.op);
+        });
+      });
+
+      // Mission cards
+      document.querySelectorAll('.mission-card').forEach(card => {
+        card.addEventListener('click', () => {
+          executeMission(card.dataset.mission);
+        });
+      });
+
+      // Toast notification system
+      function showToast(message, type = 'info') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type} show`;
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 4000);
+      }
+
+      // Initial system status
+      showToast('AEGIS C4ISR System Online - All systems operational', 'success');
     });
   </script>
 </body>
