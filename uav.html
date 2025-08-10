@@ -23,7 +23,7 @@
     }
 
     .sidebar {
-      width: 150px;
+
       background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
       border-right: 2px solid #00ff41;
       overflow-y: auto;
@@ -452,6 +452,38 @@
           {  
           },
           {
+
+            id: "DRONE_001",
+            lat: 35.7219 + (Math.random() - 0.5) * 0.1,
+            lon: 51.3347 + (Math.random() - 0.5) * 0.1,
+            alt_baro: 500 + Math.random() * 1000,
+            velocity: 50 + Math.random() * 50,
+            heading: Math.random() * 360,
+            model: "Shahed-136",
+            type: "drone",
+            threat_level: "high"
+          },
+          {
+            id: "DRONE_002", 
+            lat: 32.4279 + (Math.random() - 0.5) * 0.1,
+            lon: 53.6880 + (Math.random() - 0.5) * 0.1,
+            alt_baro: 300 + Math.random() * 700,
+            velocity: 30 + Math.random() * 40,
+            heading: Math.random() * 360,
+            model: "Mohajer-6",
+            type: "drone",
+            threat_level: "medium"
+          },
+          {
+            id: "DRONE_003",
+            lat: 29.5918 + (Math.random() - 0.5) * 0.1,
+            lon: 52.5836 + (Math.random() - 0.5) * 0.1,
+            alt_baro: 800 + Math.random() * 1200,
+            velocity: 80 + Math.random() * 60,
+            heading: Math.random() * 360,
+            model: "Karrar",
+            type: "drone",
+            threat_level: "critical">>>>>>> main
           }
         ];
       }

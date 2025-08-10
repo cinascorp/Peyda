@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>AEGIS C4ISR | Advanced UAV Command & Control System</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/dark/main.css">
+  <script src="https://js.arcgis.com/4.34/"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --header-h: 64px;
+      --footer-h: 80px;
+      --sidebar-w: 320px;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #1a1a1a;
+      --bg-tertiary: #2a2a2a;
+      --accent-primary: #00ff41;
+      --accent-secondary: #ff4444;
+      --accent-warning: #ffaa00;
+      --accent-info: #0099ff;
+      --text-primary: #ffffff;
+      --text-secondary: #cccccc;
+      --text-muted: #888888;
+      --border-color: #333333;
+      --shadow: 0 4px 20px rgba(0, 255, 65, 0.1);
+      --grid-glow: rgba(0, 255, 65, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: 'Orbitron', 'Courier New', monospace;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #app {
+      height: 100vh;
+      width: 100vw;
+      display: grid;
+      grid-template-rows: var(--header-h) 1fr var(--footer-h);
+      grid-template-columns: 1fr;
+      position: relative;
+    }
+
+    /* Header */
+    .command-header {
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+      border-bottom: 2px solid var(--accent-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      z-index: 1000;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .aegis-logo {
+      width: 40px;
+      height: 40px;
+      background: radial-gradient(circle at 30% 30%, var(--accent-primary), #00aa33);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+      color: var(--bg-primary);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(0, 255, 65, 0.5); }
+      50% { box-shadow: 0 0 20px rgba(0, 255, 65, 0.8); }
+    }
+
+    .system-title {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title-main {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent-primary);
+      text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    }
+
+    .title-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: normal;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .threat-level {
+      background: var(--bg-tertiary);
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--accent-secondary);
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--accent-secondary);
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0.3; }
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-tertiary);
+      padding: 6px 12px;
+      border-radius: 15px;
+      border: 1px solid var(--border-color);
+      font-size: 11px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Main Content */
+    .main-content {
+      position: relative;
+      overflow: hidden;
+    }
+
+    #viewDiv {
+      height: 100%;
+      width: 100%;
+      background: var(--bg-primary);
+    }
+
+    /* Sidebar Panel */
+    .control-sidebar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: var(--sidebar-w);
+      height: 100%;
+      background: linear-gradient(180deg, rgba(26, 26, 26, 0.95) 0%, rgba(10, 10, 10, 0.98) 100%);
+      backdrop-filter: blur(10px);
+      border-left: 2px solid var(--accent-primary);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 900;
+      overflow-y: auto;
+    }
+
+    .control-sidebar.active {
+      transform: translateX(0);
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--accent-primary);
+    }
+
+    .close-sidebar {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .control-section {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--accent-primary);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .uav-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .uav-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .uav-card:hover, .uav-card.active {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+    }
+
+    .uav-id {
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--accent-primary);
+      margin-bottom: 5px;
+    }
+
+    .uav-status {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .uav-indicator {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+    }
+
+    .operation-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .op-btn {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 12px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .op-btn:hover {
+      border-color: var(--accent-primary);
+      background: rgba(0, 255, 65, 0.1);
+    }
+
+    .op-btn.surveillance { border-color: var(--accent-info); }
+    .op-btn.identification { border-color: var(--accent-warning); }
+    .op-btn.destruction { border-color: var(--accent-secondary); }
+    .op-btn.capture { border-color: var(--accent-primary); }
+
+    .op-btn.surveillance:hover { background: rgba(0, 153, 255, 0.1); }
+    .op-btn.identification:hover { background: rgba(255, 170, 0, 0.1); }
+    .op-btn.destruction:hover { background: rgba(255, 68, 68, 0.1); }
+    .op-btn.capture:hover { background: rgba(0, 255, 65, 0.1); }
+
+    /* Footer Controls */
+    .command-footer {
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+      border-top: 2px solid var(--accent-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 10px 20px;
+      box-shadow: 0 -4px 20px rgba(0, 255, 65, 0.1);
+    }
+
+    .footer-btn {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      min-width: 70px;
+    }
+
+    .footer-btn:hover {
+      border-color: var(--accent-primary);
+      background: rgba(0, 255, 65, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .footer-btn.primary {
+      background: var(--accent-primary);
+      color: var(--bg-primary);
+      border-color: var(--accent-primary);
+    }
+
+    .footer-btn.warning {
+      border-color: var(--accent-secondary);
+    }
+
+    .footer-btn.warning:hover {
+      background: rgba(255, 68, 68, 0.1);
+    }
+
+    /* Mission Panel */
+    .mission-panel {
+      position: absolute;
+      bottom: 18px;
+      left: 20px;
+      right: 20px;
+      background: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--accent-primary);
+      border-radius: 12px;
+      padding: 20px;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      z-index: 800;
+    }
+
+    .mission-panel.active {
+      transform: translateY(0);
+    }
+
+    .mission-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .mission-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--accent-primary);
+    }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .mission-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .mission-card:hover {
+      border-color: var(--accent-primary);
+      transform: scale(1.05);
+    }
+
+    .mission-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: var(--accent-primary);
+    }
+
+    .mission-name {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .mission-desc {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    /* Intelligence Panel */
+    .intel-panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 280px;
+      background: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--accent-primary);
+      border-radius: 12px;
+      padding: 15px;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      z-index: 800;
+    }
+
+    .intel-panel.active {
+      transform: translateX(0);
+    }
+
+    .intel-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .intel-item:last-child {
+      border-bottom: none;
+    }
+
+    .intel-icon {
+      width: 30px;
+      height: 30px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--accent-primary);
+    }
+
+    .intel-content {
+      flex: 1;
+    }
+
+    .intel-title {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    .intel-desc {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    /* Toast Notifications */
+    .toast {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--accent-primary);
+      border-radius: 8px;
+      padding: 15px 20px;
+      max-width: 300px;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      z-index: 1100;
+      font-size: 12px;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.warning {
+      border-color: var(--accent-secondary);
+      background: rgba(255, 68, 68, 0.1);
+    }
+
+    .toast.success {
+      border-color: var(--accent-primary);
+      background: rgba(0, 255, 65, 0.1);
+    }
+
+    /* Mobile Optimizations */
+    @media (max-width: 768px) {
+      .control-sidebar {
+        width: 100vw;
+      }
+      
+      .mission-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .intel-panel {
+        width: calc(100vw - 40px);
+      }
+      
+      .header-center {
+        display: none;
+      }
+      
+      .title-sub {
+        display: none;
+      }
+    }
+
+    /* Tactical Grid Overlay */
+    .tactical-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      opacity: 0.3;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Command Header -->
+    <header class="command-header">
+      <div class="header-left">
+        <div class="aegis-logo">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="system-title">
+          <div class="title-main">AEGIS C4ISR</div>
+          <div class="title-sub">Advanced UAV Command & Control</div>
+        </div>
+      </div>
+      <div class="header-center">
+        <div class="threat-level">THREAT LEVEL: HIGH</div>
+      </div>
+      <div class="header-right">
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span>OPERATIONAL</span>
+        </div>
+        <div class="status-indicator">
+          <i class="fas fa-satellite-dish"></i>
+          <span>12 UAVs</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="tactical-grid"></div>
+      <div id="viewDiv" role="application" aria-label="Tactical Operations Map"></div>
+      
+      <!-- Control Sidebar -->
+      <aside class="control-sidebar" id="controlSidebar">
+        <div class="sidebar-header">
+          <h2 class="sidebar-title">UAV CONTROL</h2>
+          <button class="close-sidebar" id="closeSidebar">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- UAV Assets Section -->
+        <section class="control-section">
+          <h3 class="section-title">
+            <i class="fas fa-fighter-jet"></i>
+            ACTIVE UAV ASSETS
+          </h3>
+          <div class="uav-grid" id="uavGrid">
+            <!-- UAV cards will be dynamically generated -->
+          </div>
+        </section>
+
+        <!-- Operations Section -->
+        <section class="control-section">
+          <h3 class="section-title">
+            <i class="fas fa-crosshairs"></i>
+            SIDC OPERATIONS
+          </h3>
+          <div class="operation-buttons">
+            <button class="op-btn surveillance" data-op="surveillance">
+              <i class="fas fa-eye"></i>
+              SURVEILLANCE
+            </button>
+            <button class="op-btn identification" data-op="identification">
+              <i class="fas fa-search"></i>
+              IDENTIFICATION
+            </button>
+            <button class="op-btn destruction" data-op="destruction">
+              <i class="fas fa-bomb"></i>
+     
+              <a href="google.com">DESTRUCTION</a>
+           
+            </button>
+            <button class="op-btn capture" data-op="capture">
+              <i class="fas fa-hand-paper"></i>
+              CAPTURE
+            </button>
+          </div>
+        </section>
+
+        <!-- Target Analysis -->
+        <section class="control-section">
+          <h3 class="section-title">
+            <i class="fas fa-bullseye"></i>
+            TARGET ANALYSIS
+          </h3>
+          <div id="targetInfo" style="font-size: 11px; color: var(--text-secondary);">
+            Select a target on the map for detailed analysis
+          </div>
+        </section>
+      </aside>
+
+      <!-- Intelligence Panel -->
+      <aside class="intel-panel" id="intelPanel">
+        <h3 class="section-title">
+          <i class="fas fa-brain"></i>
+          REAL-TIME INTELLIGENCE
+        </h3>
+        <div class="intel-item">
+          <div class="intel-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="intel-content">
+            <div class="intel-title">THREAT DETECTED</div>
+            <div class="intel-desc">Unknown UAV at grid 342-127</div>
+          </div>
+        </div>
+        <div class="intel-item">
+          <div class="intel-icon">
+            <i class="fas fa-satellite"></i>
+          </div>
+          <div class="intel-content">
+            <div class="intel-title">COMM INTERCEPT</div>
+            <div class="intel-desc">Encrypted transmission detected</div>
+          </div>
+        </div>
+        <div class="intel-item">
+          <div class="intel-icon">
+            <i class="fas fa-map-marked-alt"></i>
+          </div>
+          <div class="intel-content">
+            <div class="intel-title">AREA SECURED</div>
+            <div class="intel-desc">Zone Alpha-7 under surveillance</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Mission Panel -->
+      <aside class="mission-panel" id="missionPanel">
+        <div class="mission-header">
+          <h3 class="mission-title">MISSION PLANNING</h3>
+          <button class="close-sidebar" id="closeMission">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="mission-grid">
+          <div class="mission-card" data-mission="patrol">
+            <div class="mission-icon">
+              <i class="fas fa-route"></i>
+            </div>
+            <div class="mission-name">PATROL</div>
+            <div class="mission-desc">Automated area patrol</div>
+          </div>
+          <div class="mission-card" data-mission="recon">
+            <div class="mission-icon">
+              <i class="fas fa-binoculars"></i>
+            </div>
+            <div class="mission-name">RECONNAISSANCE</div>
+            <div class="mission-desc">Intelligence gathering</div>
+          </div>
+          <div class="mission-card" data-mission="escort">
+            <div class="mission-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="mission-name">ESCORT</div>
+            <div class="mission-desc">Asset protection</div>
+          </div>
+          <div class="mission-card" data-mission="strike">
+            <div class="mission-icon">
+              <i class="fas fa-crosshairs"></i>
+            </div>
+            <div class="mission-name">STRIKE</div>
+            <div class="mission-desc">Precision engagement</div>
+          </div>
+          <div class="mission-card" data-mission="intercept">
+            <div class="mission-icon">
+              <i class="fas fa-fighter-jet"></i>
+            </div>
+            <div class="mission-name">INTERCEPT</div>
+            <div class="mission-desc">Target interception</div>
+          </div>
+          <div class="mission-card" data-mission="support">
+            <div class="mission-icon">
+              <i class="fas fa-hands-helping"></i>
+            </div>
+            <div class="mission-name">SUPPORT</div>
+            <div class="mission-desc">Tactical support</div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Command Footer -->
+    <footer class="command-footer">
+      <button class="footer-btn" id="btnIntel">
+        <i class="fas fa-brain"></i>
+        <span>INTEL</span>
+      </button>
+      <button class="footer-btn" id="btnMission">
+        <i class="fas fa-tasks"></i>
+        <span>MISSIONS</span>
+      </button>
+      <button class="footer-btn primary" id="btnControl">
+        <i class="fas fa-sliders-h"></i>
+        <span>CONTROL</span>
+      </button>
+      <button class="footer-btn warning" id="btnEmergency">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>EMERGENCY</span>
+      </button>
+      <button class="footer-btn" id="btnComm">
+        <i class="fas fa-broadcast-tower"></i>
+        <span>COMMS</span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" role="status" aria-live="assertive"></div>
+
+  <script>
+    // Initialize ArcGIS Map
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/Graphic",
+      "esri/layers/GraphicsLayer",
+      "esri/widgets/BasemapToggle",
+      "esri/geometry/Point",
+      "esri/symbols/SimpleMarkerSymbol",
+      "esri/symbols/TextSymbol",
+      "esri/PopupTemplate"
+    ], function(Map, MapView, Graphic, GraphicsLayer, BasemapToggle, Point, SimpleMarkerSymbol, TextSymbol, PopupTemplate) {
+      
+      // Initialize map with military satellite basemap
+      const map = new Map({ 
+        basemap: "satellite"
+      });
+      
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-98.5795, 39.8283], // Center of USA
+        zoom: 6,
+        constraints: {
+          minZoom: 3,
+          maxZoom: 18
+        }
+      });
+
+      // Add basemap toggle
+      const basemapToggle = new BasemapToggle({ 
+        view: view, 
+        nextBasemap: "streets-navigation-vector" 
+      });
+      view.ui.add(basemapToggle, "top-right");
+
+      // Create layers for different asset types
+      const friendlyUAVLayer = new GraphicsLayer({ title: "Friendly UAVs" });
+      const enemyUAVLayer = new GraphicsLayer({ title: "Enemy UAVs" });
+      const neutralLayer = new GraphicsLayer({ title: "Neutral Assets" });
+      const threatLayer = new GraphicsLayer({ title: "Threats" });
+      
+      map.addMany([friendlyUAVLayer, enemyUAVLayer, neutralLayer, threatLayer]);
+
+      // UAV asset data
+      let uavAssets = [
+        { id: "UAV-001", type: "MQ-9 Reaper", status: "OPERATIONAL", lat: 39.7392, lng: -104.9903, mission: "PATROL" },
+        { id: "UAV-002", type: "RQ-4 Global Hawk", status: "SURVEILLANCE", lat: 38.9072, lng: -77.0369, mission: "RECON" },
+        { id: "UAV-003", type: "MQ-1 Predator", status: "ENGAGED", lat: 34.0522, lng: -118.2437, mission: "STRIKE" },
+        { id: "UAV-004", type: "RQ-11 Raven", status: "OPERATIONAL", lat: 41.8781, lng: -87.6298, mission: "PATROL" },
+        { id: "UAV-005", type: "MQ-8 Fire Scout", status: "MAINTENANCE", lat: 29.7604, lng: -95.3698, mission: "SUPPORT" },
+        { id: "UAV-006", type: "X-47B UCAS", status: "OPERATIONAL", lat: 37.7749, lng: -122.4194, mission: "ESCORT" }
+      ];
+
+      let enemyAssets = [
+        { id: "TGT-001", type: "Unknown UAV", threat: "HIGH", lat: 40.7128, lng: -74.0060 },
+        { id: "TGT-002", type: "Hostile Drone", threat: "MEDIUM", lat: 25.7617, lng: -80.1918 }
+      ];
+
+      let selectedUAV = null;
+      let selectedTarget = null;
+
+      // Symbol configurations
+      const friendlySymbol = new SimpleMarkerSymbol({
+        color: [0, 255, 65, 0.8],
+        size: "16px",
+        outline: { color: [0, 255, 65], width: 2 }
+      });
+
+      const enemySymbol = new SimpleMarkerSymbol({
+        color: [255, 68, 68, 0.8],
+        size: "16px",
+        outline: { color: [255, 68, 68], width: 2 }
+      });
+
+      const neutralSymbol = new SimpleMarkerSymbol({
+        color: [255, 170, 0, 0.8],
+        size: "14px",
+        outline: { color: [255, 170, 0], width: 2 }
+      });
+
+      // Initialize UAV graphics
+      function initializeAssets() {
+        // Clear existing graphics
+        friendlyUAVLayer.removeAll();
+        enemyUAVLayer.removeAll();
+        
+        // Add friendly UAVs
+        uavAssets.forEach(uav => {
+          const point = new Point({
+            longitude: uav.lng,
+            latitude: uav.lat
+          });
+
+          const graphic = new Graphic({
+            geometry: point,
+            symbol: friendlySymbol,
+            attributes: uav,
+            popupTemplate: new PopupTemplate({
+              title: "{id} - {type}",
+              content: `
+                <strong>Status:</strong> {status}<br>
+                <strong>Mission:</strong> {mission}<br>
+                <strong>Type:</strong> {type}
+              `
+            })
+          });
+
+          friendlyUAVLayer.add(graphic);
+        });
+
+        // Add enemy/threat assets
+        enemyAssets.forEach(enemy => {
+          const point = new Point({
+            longitude: enemy.lng,
+            latitude: enemy.lat
+          });
+
+          const graphic = new Graphic({
+            geometry: point,
+            symbol: enemySymbol,
+            attributes: enemy,
+            popupTemplate: new PopupTemplate({
+              title: "{id} - {type}",
+              content: `
+                <strong>Threat Level:</strong> {threat}<br>
+                <strong>Type:</strong> {type}<br>
+                <strong>Status:</strong> Under surveillance
+              `
+            })
+          });
+
+          enemyUAVLayer.add(graphic);
+        });
+
+        updateUAVGrid();
+      }
+
+      // Update UAV grid in sidebar
+      function updateUAVGrid() {
+        const uavGrid = document.getElementById('uavGrid');
+        uavGrid.innerHTML = '';
+
+        uavAssets.forEach(uav => {
+          const card = document.createElement('div');
+          card.className = 'uav-card';
+          card.dataset.uavId = uav.id;
+          
+          const statusColor = {
+            'OPERATIONAL': 'var(--accent-primary)',
+            'SURVEILLANCE': 'var(--accent-info)',
+            'ENGAGED': 'var(--accent-secondary)',
+            'MAINTENANCE': 'var(--accent-warning)'
+          }[uav.status] || 'var(--text-secondary)';
+
+          card.innerHTML = `
+            <div class="uav-indicator" style="background: ${statusColor}"></div>
+            <div class="uav-id">${uav.id}</div>
+            <div class="uav-status">${uav.type}</div>
+            <div class="uav-status">Status: ${uav.status}</div>
+          `;
+
+          card.addEventListener('click', () => selectUAV(uav));
+          uavGrid.appendChild(card);
+        });
+      }
+
+      // Select UAV
+      function selectUAV(uav) {
+        selectedUAV = uav;
+        
+        // Update UI
+        document.querySelectorAll('.uav-card').forEach(card => {
+          card.classList.remove('active');
+        });
+        document.querySelector(`[data-uav-id="${uav.id}"]`).classList.add('active');
+        
+        // Center map on selected UAV
+        view.goTo({
+          center: [uav.lng, uav.lat],
+          zoom: 10
+        });
+
+        showToast(`Selected ${uav.id} - ${uav.type}`, 'success');
+      }
+
+      // Handle map clicks for target selection
+      view.on("click", function(event) {
+        view.hitTest(event).then(function(response) {
+          if (response.results.length > 0) {
+            const graphic = response.results[0].graphic;
+            if (graphic.layer === enemyUAVLayer) {
+              selectedTarget = graphic.attributes;
+              updateTargetInfo(selectedTarget);
+              showToast(`Target selected: ${selectedTarget.id}`, 'warning');
+            }
+          }
+        });
+      });
+
+      // Update target info panel
+      function updateTargetInfo(target) {
+        const targetInfo = document.getElementById('targetInfo');
+        targetInfo.innerHTML = `
+          <strong>Target ID:</strong> ${target.id}<br>
+          <strong>Type:</strong> ${target.type}<br>
+          <strong>Threat Level:</strong> ${target.threat}<br>
+          <strong>Coordinates:</strong> ${target.lat.toFixed(4)}, ${target.lng.toFixed(4)}<br>
+          <strong>Status:</strong> Under surveillance
+        `;
+      }
+
+      // SIDC Operations
+      function executeOperation(operation) {
+        if (!selectedUAV) {
+          showToast('Please select a UAV first', 'warning');
+          return;
+        }
+
+        let message = '';
+        switch(operation) {
+          case 'surveillance':
+            message = `${selectedUAV.id} initiated surveillance operation`;
+            selectedUAV.mission = 'SURVEILLANCE';
+            selectedUAV.status = 'SURVEILLANCE';
+            break;
+          case 'identification':
+            if (!selectedTarget) {
+              showToast('Please select a target for identification', 'warning');
+              return;
+            }
+            message = `${selectedUAV.id} identifying target ${selectedTarget.id}`;
+            break;
+          case 'destruction':
+            if (!selectedTarget) {
+              showToast('Please select a target for engagement', 'warning');
+              return;
+            }
+            message = `${selectedUAV.id} engaging target ${selectedTarget.id} - WEAPONS FREE`;
+            selectedUAV.status = 'ENGAGED';
+            break;
+          case 'capture':
+            if (!selectedTarget) {
+              showToast('Please select a target for capture', 'warning');
+              return;
+            }
+            message = `${selectedUAV.id} executing capture protocol on ${selectedTarget.id}`;
+            break;
+        }
+
+        updateUAVGrid();
+        showToast(message, 'success');
+        
+        // Log operation
+        console.log(`[OPERATION] ${operation.toUpperCase()}: ${message}`);
+      }
+
+      // Mission execution
+      function executeMission(missionType) {
+        if (!selectedUAV) {
+          showToast('Please select a UAV for mission assignment', 'warning');
+          return;
+        }
+
+        selectedUAV.mission = missionType.toUpperCase();
+        selectedUAV.status = 'OPERATIONAL';
+        
+        updateUAVGrid();
+        showToast(`Mission ${missionType.toUpperCase()} assigned to ${selectedUAV.id}`, 'success');
+        
+        // Close mission panel
+        document.getElementById('missionPanel').classList.remove('active');
+      }
+
+      // Initialize the system
+      initializeAssets();
+
+      // Simulate real-time updates
+      setInterval(() => {
+        // Randomly update UAV positions slightly (simulate movement)
+        uavAssets.forEach(uav => {
+          uav.lat += (Math.random() - 0.5) * 0.001;
+          uav.lng += (Math.random() - 0.5) * 0.001;
+        });
+        
+        // Update graphics
+        initializeAssets();
+      }, 10000);
+
+      // UI Event Handlers
+      const controlSidebar = document.getElementById('controlSidebar');
+      const intelPanel = document.getElementById('intelPanel');
+      const missionPanel = document.getElementById('missionPanel');
+
+      // Footer button handlers
+      document.getElementById('btnControl').addEventListener('click', () => {
+        controlSidebar.classList.toggle('active');
+        intelPanel.classList.remove('active');
+        missionPanel.classList.remove('active');
+      });
+
+      document.getElementById('btnIntel').addEventListener('click', () => {
+        intelPanel.classList.toggle('active');
+        controlSidebar.classList.remove('active');
+        missionPanel.classList.remove('active');
+      });
+
+      document.getElementById('btnMission').addEventListener('click', () => {
+        missionPanel.classList.toggle('active');
+        controlSidebar.classList.remove('active');
+        intelPanel.classList.remove('active');
+      });
+
+      document.getElementById('btnEmergency').addEventListener('click', () => {
+        showToast('EMERGENCY PROTOCOL ACTIVATED - ALL UNITS RETURN TO BASE', 'warning');
+        // Emergency protocol logic here
+      });
+
+      document.getElementById('btnComm').addEventListener('click', () => {
+        showToast('Communications check - All units report status', 'success');
+        // Communications logic here
+      });
+
+      // Close buttons
+      document.getElementById('closeSidebar').addEventListener('click', () => {
+        controlSidebar.classList.remove('active');
+      });
+
+      document.getElementById('closeMission').addEventListener('click', () => {
+        missionPanel.classList.remove('active');
+      });
+
+      // Operation buttons
+      document.querySelectorAll('.op-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          executeOperation(btn.dataset.op);
+        });
+      });
+
+      // Mission cards
+      document.querySelectorAll('.mission-card').forEach(card => {
+        card.addEventListener('click', () => {
+          executeMission(card.dataset.mission);
+        });
+      });
+
+      // Toast notification system
+      function showToast(message, type = 'info') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast ${type} show`;
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 4000);
+      }
+
+      // Initial system status
+      showToast('AEGIS C4ISR System Online - All systems operational', 'success');
+    });
+  </script>
+</body>
+</html>

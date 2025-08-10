@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>سامانه رصد پهپادی تار - TAR C4ISR</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.34/"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
+    html, body {
+      padding: 0; 
+      margin: 0; 
+      height: 100vh; 
+      width: 100vw;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      direction: rtl;
+      overflow: hidden;
+      background: #1a1a1a;
+    }
+
+    #viewDiv {
+      position: absolute;
+      top: 60px;
+      left: 0;
+      right: 0;
+      bottom: 120px;
+      z-index: 1;
+    }
+
+    /* Header */
+    .tar-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 15px;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .tar-logo {
+      display: flex;
+      align-items: center;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .tar-logo::before {
+      content: "🕸️";
+      margin-left: 8px;
+      font-size: 20px;
+    }
+
+    .threat-level {
+      background: #ff4444;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+
+    /* Bottom Control Panel */
+    .control-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+      z-index: 1000;
+      border-top: 2px solid #3498db;
+    }
+
+    .control-tabs {
+      display: flex;
+      height: 30px;
+      background: #1a252f;
+    }
+
+    .control-tab {
+      flex: 1;
+      background: #2c3e50;
+      color: white;
+      border: none;
+      padding: 10px 5px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      border-right: 1px solid #34495e;
+      transition: all 0.3s;
+    }
+
+    .control-tab.active {
+      background: #3498db;
+      color: white;
+    }
+
+    .control-tab:hover {
+      background: #34495e;
+    }
+
+    .control-content {
+      height: 130px;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Military Action Buttons */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      height: 100%;
+    }
+
+    .action-btn {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    }
+
+    .action-btn.intercept {
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    }
+
+    .action-btn.destroy {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .action-btn.jam {
+      background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    }
+
+    .action-btn.track {
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    }
+
+    /* Statistics Panel */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      height: 100%;
+    }
+
+    .stat-item {
+      background: rgba(52, 73, 94, 0.8);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+      color: white;
+    }
+
+    .stat-number {
+      font-size: 16px;
+      font-weight: bold;
+      color: #3498db;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    /* Command Panel */
+    .command-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      height: 100%;
+    }
+
+    .command-btn {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      border: 2px solid #3498db;
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .command-btn:hover {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      border-color: white;
+    }
+
+    /* Alert System */
+    .alert-system {
+      position: fixed;
+      top: 70px;
+      right: 10px;
+      width: 200px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 999;
+    }
+
+    .alert-item {
+      background: rgba(231, 76, 60, 0.9);
+      color: white;
+      padding: 8px;
+      margin-bottom: 5px;
+      border-radius: 5px;
+      font-size: 11px;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .tar-logo {
+        font-size: 14px;
+      }
+      
+      .control-tab {
+        font-size: 10px;
+        padding: 8px 3px;
+      }
+      
+      .action-btn {
+        font-size: 9px;
+        padding: 6px;
+      }
+      
+      .stat-number {
+        font-size: 14px;
+      }
+      
+      .stat-label {
+        font-size: 9px;
+      }
+    }
+
+    /* Popup styling */
+    .esri-popup__content {
+      font-size: 10px; 
+      line-height: 1.4; 
+      text-align: right;
+      direction: rtl;
+    }
+
+    .flightradar-link {
+      color: #3498db; 
+      text-decoration: underline; 
+      cursor: pointer;
+    }
+
+    /* Demo warning */
+    .demo-warning {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.9);
+      color: #ff6b6b;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      z-index: 10000;
+      border: 2px solid #ff6b6b;
+      display: none;
+    }
+
+    .demo-warning.show {
+      display: block;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="tar-header">
+    <div class="tar-logo">سامانه تار - TAR C4ISR</div>
+    <div class="threat-level" id="threatLevel">سطح تهدید: متوسط</div>
+  </div>
+
+  <!-- Map View -->
+  <div id="viewDiv"></div>
+
+  <!-- Alert System -->
+  <div class="alert-system" id="alertSystem"></div>
+
+  <!-- Control Panel -->
+  <div class="control-panel">
+    <div class="control-tabs">
+      <button class="control-tab active" onclick="showTab('actions')">عملیات نظامی</button>
+      <button class="control-tab" onclick="showTab('stats')">آمار</button>
+      <button class="control-tab" onclick="showTab('command')">فرماندهی</button>
+      <button class="control-tab" onclick="showTab('intel')">اطلاعات</button>
+    </div>
+    
+    <div class="control-content">
+      <!-- Military Actions Tab -->
+      <div id="actions" class="tab-panel active">
+        <div class="action-grid">
+          <button class="action-btn intercept" onclick="militaryAction('intercept')">
+            🚁 رهگیری
+          </button>
+          <button class="action-btn destroy" onclick="militaryAction('destroy')">
+            <a href="https://google.com">      
+            💥 انهدام
+                </a>
+          </button>
+          <button class="action-btn jam" onclick="militaryAction('jam')">
+            📡 تداخل
+          </button>
+          <button class="action-btn track" onclick="militaryAction('track')">
+            🎯 ردیابی
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistics Tab -->
+      <div id="stats" class="tab-panel">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number" id="droneCount">0</div>
+            <div class="stat-label">پهپاد</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="militaryCount">0</div>
+            <div class="stat-label">نظامی</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="civilianCount">0</div>
+            <div class="stat-label">غیرنظامی</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Command Tab -->
+      <div id="command" class="tab-panel">
+        <div class="command-grid">
+          <button class="command-btn" onclick="commandAction('alert')">
+            🚨 آژیر خطر
+          </button>
+          <button class="command-btn" onclick="commandAction('scramble')">
+            ✈️ اعزام جنگنده
+          </button>
+          <button class="command-btn" onclick="commandAction('defense')">
+            🛡️ دفاع ملی
+          </button>
+          <button class="command-btn" onclick="commandAction('coordination')">
+            📞 هماهنگی
+          </button>
+        </div>
+      </div>
+
+      <!-- Intelligence Tab -->
+      <div id="intel" class="tab-panel">
+        <div style="color: white; font-size: 11px; line-height: 1.4;">
+          <div><strong>وضعیت عملیاتی:</strong> آماده باش</div>
+          <div><strong>پوشش راداری:</strong> ۱۰۰٪</div>
+          <div><strong>سیستم دفاعی:</strong> فعال</div>
+          <div><strong>ارتباطات:</strong> امن</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demo Warning Modal -->
+  <div class="demo-warning" id="demoWarning">
+    <h3>⚠️ سیستم آزمایشی ⚠️</h3>
+    <p>این سامانه در حالت آزمایشی است</p>
+    <p>هیچ تداخل فیزیکی در پروازها صورت نمی‌گیرد</p>
+    <button onclick="closeDemoWarning()" style="margin-top: 10px; padding: 5px 15px; background: #3498db; color: white; border: none; border-radius: 5px;">متوجه شدم</button>
+  </div>
+
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/Graphic",
+      "esri/layers/GraphicsLayer",
+      "esri/widgets/BasemapToggle"
+    ], 
+    
+    function(Map, MapView, Graphic, GraphicsLayer, BasemapToggle) {
+      const map = new Map({ basemap: "satellite" });
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [53, 30],
+        zoom: 8
+      });
+
+      const basemapToggle = new BasemapToggle({
+        view: view,
+        nextBasemap: "streets-vector"
+      });
+      view.ui.add(basemapToggle, "top-left");
+
+      const droneLayer = new GraphicsLayer();
+      const militaryLayer = new GraphicsLayer();
+      const civilianLayer = new GraphicsLayer();
+      map.addMany([civilianLayer, militaryLayer, droneLayer]);
+
+      let isFirstLoad = true;
+      let selectedTarget = null;
+      let alertCount = 0;
+
+      // Tab switching function
+      window.showTab = function(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+          panel.classList.remove('active');
+        });
+        document.querySelectorAll('.control-tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
+
+        // Show selected tab
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
+      };
+
+      // Military action functions
+      window.militaryAction = function(action) {
+        showDemoWarning();
+        
+        const actions = {
+          'intercept': 'عملیات رهگیری شروع شد',
+          'destroy': 'دستور انهدام صادر شد',
+          'jam': 'سیستم تداخل فعال شد',
+          'track': 'ردیابی هدف آغاز شد'
+        };
+
+        addAlert(actions[action]);
+        updateThreatLevel();
+        
+        // Simulate action feedback
+        setTimeout(() => {
+          addAlert(`عملیات ${actions[action]} با موفقیت انجام شد`);
+        }, 3000);
+      };
+
+      window.commandAction = function(action) {
+        showDemoWarning();
+        
+        const commands = {
+          'alert': 'آژیر خطر فعال شد',
+          'scramble': 'جنگنده‌ها آماده اعزام',
+          'defense': 'سیستم دفاع ملی فعال شد',
+          'coordination': 'ارتباط با مراکز فرماندهی برقرار شد'
+        };
+
+        addAlert(commands[action]);
+        updateThreatLevel();
+      };
+
+      function showDemoWarning() {
+        document.getElementById('demoWarning').classList.add('show');
+      }
+
+      window.closeDemoWarning = function() {
+        document.getElementById('demoWarning').classList.remove('show');
+      };
+
+      function addAlert(message) {
+        const alertSystem = document.getElementById('alertSystem');
+        const alertItem = document.createElement('div');
+        alertItem.className = 'alert-item';
+        alertItem.textContent = `${new Date().toLocaleTimeString('fa-IR')}: ${message}`;
+        
+        alertSystem.insertBefore(alertItem, alertSystem.firstChild);
+        
+        // Remove old alerts (keep only 5)
+        if (alertSystem.children.length > 5) {
+          alertSystem.removeChild(alertSystem.lastChild);
+        }
+
+        alertCount++;
+      }
+
+      function updateThreatLevel() {
+        const threatLevel = document.getElementById('threatLevel');
+        const levels = ['کم', 'متوسط', 'بالا', 'بحرانی'];
+        const currentLevel = Math.min(Math.floor(alertCount / 2), 3);
+        threatLevel.textContent = `سطح تهدید: ${levels[currentLevel]}`;
+        
+        const colors = ['#27ae60', '#f39c12', '#e67e22', '#e74c3c'];
+        threatLevel.style.background = colors[currentLevel];
+      }
+
+      function updateStats() {
+        document.getElementById('droneCount').textContent = droneLayer.graphics.length;
+        document.getElementById('militaryCount').textContent = militaryLayer.graphics.length;
+        document.getElementById('civilianCount').textContent = civilianLayer.graphics.length;
+      }
+
+      // Data fetching functions (same as original)
+      async function fetchAdsbData() {
+        try {
+          const response = await fetch('https://api.adsb.lol/v2/mil', {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+              'Accept': 'application/json',
+              'Origin': window.location.origin
+            }
+          });
+          const text = await response.text();
+          const cleanedText = text.replace(/^while\(1\);/, '').trim();
+          const data = JSON.parse(cleanedText);
+          return Array.isArray(data) ? data : data.aircraft || data.ac || [];
+        } catch (error) {
+          return [];
+        }
+      }
+
+      async function fetchFlightradarData() {
+        try {
+          const response = await fetch('https://data-cloud.flightradar24.com/zones/fcgi/feeds.js', {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+              'Accept': 'application/json'
+            }
+          });
+          const text = await response.text();
+          const cleanedText = text.replace(/^while\(1\);/, '').trim();
+          const data = JSON.parse(cleanedText);
+          const flights = [];
+          for (const [key, value] of Object.entries(data)) {
+            if (!Array.isArray(value)) continue;
+            flights.push({
+              id: key,
+              lat: value[1],
+              lon: value[2],
+              track: value[3] || 0,
+              alt_baro: value[4] || 'نامشخص',
+              gs: value[5] || 'نامشخص',
+              flight: value[13] || 'نامشخص',
+              hex: value[0] || 'نامشخص',
+              type: 'civilian',
+              model: value[8] || 'نامشخص',
+              r: value[9] || 'نامشخص',
+              category: value[11] || 'نامشخص'
+            });
+          }
+          return flights;
+        } catch (error) {
+          return [];
+        }
+      }
+
+      async function fetchOpenSkyData() {
+        try {
+          const response = await fetch('https://opensky-network.org/api/states/all', {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+              'Accept': 'application/json'
+            }
+          });
+          const data = await response.json();
+          return (data.states || []).map(flight => ({
+            icao24: flight[0],
+            callsign: flight[1]?.trim() || 'نامشخص',
+            lon: flight[5],
+            lat: flight[6],
+            alt_baro: flight[7] || 'نامشخص',
+            velocity: flight[9] || 'نامشخص',
+            heading: flight[10] || 0,
+            type: 'aircraft',
+            hex: flight[0] || 'نامشخص',
+            squawk: flight[14] || 'نامشخص',
+            emergency: flight[15] || 'نامشخص',
+            baro_rate: flight[11] || 'نامشخص',
+            alt_geom: flight[13] || 'نامشخص',
+            nav_modes: flight[16] || [],
+            nac_p: flight[17] || 'نامشخص',
+            nac_v: flight[18] || 'نامشخص',
+            sil: flight[19] || 'نامشخص',
+            sil_type: flight[20] || 'نامشخص',
+            gva: flight[21] || 'نامشخص',
+            sda: flight[22] || 'نامشخص',
+            alert: flight[23] || 'نامشخص',
+            spi: flight[24] || 'نامشخص'
+          }));
+        } catch (error) {
+          return [];
+        }
+      }
+      
+      function getSampleDroneData() {
+        return [];
+      }
+
+      function identifyFlightType(flight) {
+        if ((flight.gs < 100 || flight.velocity < 100) || flight.alt_baro < 5000 ||
+            ['DJI', 'Mq', 'Bayraktar', 'Mavic','shahed'].some(model => flight.model?.includes(model) || flight.t?.includes(model))) {
+          return 'drone';
+        }
+        if (!flight.callsign && !flight.flight || flight.callsign === 'نامشخص' && flight.flight === 'نامشخص') {
+          return 'unknown';
+        }
+        if (flight.type === 'military' && ['Eurofighter', 'F-16', 'F-35', 'F-22', 'Su-27', 'MiG-29'].some(model => flight.t?.includes(model) || flight.model?.includes(model))) {
+          return 'fighter';
+        }
+        if (flight.category?.includes('Naval') || flight.t?.includes('P-8') || flight.t?.includes('Poseidon')) {
+          return 'navy';
+        }
+        if (flight.hex?.startsWith('7B') || flight.r?.startsWith('EP-')) {
+          return 'iranian';
+        }
+        return flight.type === 'military' ? 'military' : 'civilian';
+      }
+
+      function getFlightColor(flight) {
+        const flightType = identifyFlightType(flight);
+        switch (flightType) {
+          case 'drone': return 'black';
+          case 'unknown': return 'yellow';
+          case 'fighter': return 'orange';
+          case 'navy': return 'lightblue';
+          case 'iranian': return 'green';
+          case 'military': return 'red';
+          default: return 'blue';
+        }
+      }
+
+      function getIconSize(zoom) {
+        if (zoom >= 11) return "12px";
+        if (zoom >= 8) return "20px";
+        if (zoom >= 6) return "28px";
+        if (zoom >= 3) return "36px";
+        return "18px";
+      }
+
+      function createMilitaryPopupContent(flight) {
+        const flightradarLink = flight.hex && flight.flight !== 'نامشخص' ? 
+          `<a class="flightradar-link" href="https://www.flightradar24.com/${flight.hex}/${flight.flight}/3d" target="_blank">نمایش ۳بعدی مسیر</a>` : '';
+        
+        const actionButtons = `
+          <div style="margin-top: 10px; direction: ltr;">
+            <button onclick="window.parent.militaryAction('track')" style="background: #27ae60; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">ردیابی</button>
+            <button onclick="window.parent.militaryAction('intercept')" style="background: #f39c12; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">رهگیری</button>
+            <button onclick="window.parent.militaryAction('jam')" style="background: #9b59b6; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">تداخل</button>
+          </div>
+        `;
+        
+        return `
+          <b>نوع منبع داده: </b>${flight.type || 'نامشخص'}<br>
+          <b>شناسه هگزا: </b>${flight.hex || 'نامشخص'}<br>
+          <b>شناسه پرواز: </b>${flight.flight || flight.callsign || 'نامشخص'}<br>
+          <b>شماره ثبت: </b>${flight.r || 'نامشخص'}<br>
+          <b>نوع هواپیما: </b>${flight.t || flight.model || 'نامشخص'}<br>
+          <b>ارتفاع بارومتریک (فوت): </b>${flight.alt_baro || 'نامشخص'}<br>
+          <b>ارتفاع هندسی (فوت): </b>${flight.alt_geom || 'نامشخص'}<br>
+          <b>سرعت زمینی (گره): </b>${flight.gs || flight.velocity || 'نامشخص'}<br>
+          <b>جهت حرکت (درجه): </b>${flight.track || flight.heading || 'نامشخص'}<br>
+          <b>کد اسکواک: </b>${flight.squawk || 'نامشخص'}<br>
+          <b>وضعیت اضطراری: </b>${flight.emergency || 'نامشخص'}<br>
+          <b>عرض جغرافیایی: </b>${flight.lat || 'نامشخص'}<br>
+          <b>طول جغرافیایی: </b>${flight.lon || 'نامشخص'}<br>
+          ${flightradarLink}
+          ${actionButtons}
+        `;
+      }
+
+      function createCivilianPopupContent(flight) {
+        const flightradarLink = flight.hex && flight.flight !== 'نامشخص' ? 
+          `<a class="flightradar-link" href="https://www.flightradar24.com/${flight.flight}/${flight.hex}/3d" target="_blank">نمایش سه بعدی و مسیر</a>` : '';
+        return `
+          <b>نوع منبع داده: </b>${flight.type || 'نامشخص'}<br>
+          <b>شناسه هگزا: </b>${flight.hex || 'نامشخص'}<br>
+          <b>شناسه پرواز: </b>${flight.flight || flight.callsign || 'نامشخص'}<br>
+          <b>شماره ثبت: </b>${flight.r || 'نامشخص'}<br>
+          <b>نوع هواپیما: </b>${flight.model || 'نامشخص'}<br>
+          <b>ارتفاع بارومتریک (فوت): </b>${flight.alt_baro || 'نامشخص'}<br>
+          <b>سرعت زمینی (گره): </b>${flight.gs || flight.velocity || 'نامشخص'}<br>
+          <b>جهت حرکت (درجه): </b>${flight.track || flight.heading || 'نامشخص'}<br>
+          <b>عرض جغرافیایی: </b>${flight.lat || 'نامشخص'}<br>
+          <b>طول جغرافیایی: </b>${flight.lon || 'نامشخص'}<br>
+          ${flightradarLink}
+        `;
+      }
+
+      function createDronePopupContent(drone) {
+        const actionButtons = `
+          <div style="margin-top: 10px; direction: ltr;">
+            <button onclick="window.parent.militaryAction('track')" style="background: #27ae60; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">ردیابی</button>
+            <button onclick="window.parent.militaryAction('intercept')" style="background: #f39c12; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">رهگیری</button>
+            <button onclick="window.parent.militaryAction('jam')" style="background: #9b59b6; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">تداخل</button>
+            <button onclick="window.parent.militaryAction('destroy')" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; margin: 2px; border-radius: 3px; cursor: pointer;">انهدام</button>
+          </div>
+        `;
+        
+        return `
+          <b>نوع منبع داده: </b>${drone.type || 'نامشخص'}<br>
+          <b>شناسه پهپاد: </b>${drone.id || 'نامشخص'}<br>
+          <b>مدل: </b>${drone.model || 'نامشخص'}<br>
+          <b>عرض جغرافیایی: </b>${drone.lat || 'نامشخص'}<br>
+          <b>طول جغرافیایی: </b>${drone.lon || 'نامشخص'}<br>
+          <b>ارتفاع بارومتریک (فوت): </b>${drone.alt_baro || 'نامشخص'}<br>
+          <b>سرعت زمینی (گره): </b>${drone.velocity || 'نامشخص'}<br>
+          <b>جهت حرکت (درجه): </b>${drone.heading || 'نامشخص'}<br>
+          <b>نوع: </b>پهپاد<br>
+          ${actionButtons}
+        `;
+      }
+
+      async function updateMarkers() {
+        const adsbFlights = await fetchAdsbData();
+        const flightradarFlights = await fetchFlightradarData();
+        const openSkyFlights = await fetchOpenSkyData();
+        const droneData = getSampleDroneData();
+        const allFlights = [...adsbFlights.map(f => ({ ...f, type: 'military' })), ...flightradarFlights, ...openSkyFlights, ...droneData];
+
+        civilianLayer.removeAll();
+        militaryLayer.removeAll();
+        droneLayer.removeAll();
+
+        const iconSize = getIconSize(view.zoom);
+
+        allFlights.forEach(flight => {
+          if (flight.lat && flight.lon) {
+            const flightType = identifyFlightType(flight);
+            const layer = flightType === 'drone' ? droneLayer : 
+                         (flightType === 'military' || flightType === 'fighter' || flightType === 'navy' || flightType === 'iranian') ? militaryLayer : 
+                         civilianLayer;
+
+            const graphic = new Graphic({
+              geometry: {
+                type: "point",
+                latitude: flight.lat,
+                longitude: flight.lon
+              },
+              symbol: {
+                type: "picture-marker",
+                url: flightType === 'drone' ? "https://img.icons8.com/ios/40/drone-bottom-view.png" :
+                     flightType === 'unknown' ? "https://www.iconsdb.com/icons/preview/yellow/airplane-3-xl.png" :
+                     flightType === 'fighter' ? "https://www.iconsdb.com/icons/preview/orange/airplane-3-xl.png" :
+                     flightType === 'navy' ? "https://www.iconsdb.com/icons/preview/orange/airplane-3-xl.png" :
+                     flightType === 'iranian' ? "https://www.iconsdb.com/icons/preview/green/airplane-3-xl.png" :
+                     flightType === 'military' ? "https://www.iconsdb.com/icons/preview/red/airplane-3-xl.png" :
+                     "https://img.icons8.com/external-soft-fill-juicy-fish/60/external-airplane-internet-of-things-soft-fill-soft-fill-juicy-fish.png",
+                width: iconSize,
+                height: iconSize,
+                angle: flight.track || flight.heading || 0
+              },
+              attributes: flight,
+              popupTemplate: {
+                title: flightType === 'drone' ? "🚁 پهپاد - TAR" :
+                       flightType === 'unknown' ? "❓ شیء ناشناس" :
+                       flightType === 'fighter' ? "⚔️ جنگنده نظامی" :
+                       flightType === 'navy' ? "🚢 هواپیمای نیروی دریایی" :
+                       flightType === 'iranian' ? "🇮🇷 هواپیمای ایرانی" :
+                       flightType === 'military' ? "🎖️ پرواز نظامی" : "✈️ پرواز غیرنظامی",
+                content: flightType === 'drone' ? createDronePopupContent(flight) :
+                         (flightType === 'military' || flightType === 'fighter' || flightType === 'navy' || flightType === 'iranian') ? createMilitaryPopupContent(flight) :
+                         createCivilianPopupContent(flight)
+              }
+            });
+            layer.add(graphic);
+          }
+        });
+
+        updateStats();
+
+        if (isFirstLoad && allFlights.length > 0) {
+          const bounds = allFlights.filter(f => f.lat && f.lon).map(f => [f.lat, f.lon]);
+          if (bounds.length > 0) {
+            view.goTo({ target: bounds });
+            isFirstLoad = false;
+          }
+        }
+      }
+
+      view.watch("zoom", () => {
+        const iconSize = getIconSize(view.zoom);
+        [civilianLayer, militaryLayer, droneLayer].forEach(layer => {
+          layer.graphics.forEach(graphic => {
+            graphic.symbol.width = iconSize;
+            graphic.symbol.height = iconSize;
+          });
+        });
+      });
+
+      // Initialize
+      updateMarkers();
+      setInterval(updateMarkers, 15000);
+      
+      // Initial system message
+      setTimeout(() => {
+        addAlert('سامانه رصد پهپادی تار آماده به کار است');
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
