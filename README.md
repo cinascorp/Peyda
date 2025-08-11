@@ -109,11 +109,18 @@ http://localhost:8080
 ## ساختار پروژه / Project Structure
 
 ```
-peyda-uav-tracker/
-├── uav.html              # فایل اصلی برنامه
-├── package.json          # تنظیمات پروژه
-├── README.md            # مستندات
-└── .git/               # کنترل نسخه
+Peyda/
+├── index.html              # فایل اصلی برنامه (renamed from uav.html for better SEO/access)
+├── styles.css              # استایل‌های UI بهبودیافته (جدا شده برای نگهداری آسان)
+├── script.js               # منطق JS با ترفندهای زنده‌موندن و realtime
+├── package.json            # تنظیمات پروژه (به‌روزرسانی شده با dependencies جدید مثل bootstrap, leaflet)
+├── README.md               # مستندات (به‌روزرسانی شده با ویژگی‌های جدید)
+├── assets/                 # فولدر برای منابع اضافی
+│   ├── alert.mp3           # صدای هشدار تاکتیکی (دانلود از اینترنت و اضافه کن)
+│   └── icons/              # فولدر آیکون‌ها
+│       ├── drone.png       # آیکون پهپاد (دانلود و اضافه کن)
+│       └── military.png    # آیکون نظامی
+└── LICENSE                 # مجوز (اگر وجود داره، نگه دار)
 ```
 
 ## امکانات پیشرفته / Advanced Features
