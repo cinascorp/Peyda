@@ -1,0 +1,19 @@
+{
+  "app.title": "C4ISR Safe",
+  "map.base.dark": "Dark",
+  "map.base.light": "Light",
+  "map.base.contrast": "High contrast",
+  "map.base.satellite": "Satellite",
+  "panel.tracking": "Tracking",
+  "panel.flights": "Flights",
+  "panel.settings": "Settings",
+  "flight.callsign": "Callsign",
+  "flight.icao": "ICAO24",
+  "flight.alt": "Altitude",
+  "flight.speed": "Speed",
+  "flight.heading": "Heading",
+  "flight.source": "Source",
+  "flight.military": "Military",
+  "search.placeholder": "Search callsign/ICAO24",
+  "alerts.risk": "Potential risk detected"
+}
