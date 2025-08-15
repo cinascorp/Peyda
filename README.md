@@ -149,21 +149,8 @@ Peyda/
 
 ###
 npm run start
-```
 
 
-## مجوز / License
-
-این پروژه تحت مجوز MIT منتشر شده است. برای اطلاعات بیشتر فایل LICENSE را مطالعه کنید.
-
-## تماس و پشتیبانی / Contact & Support
-
-برای گزارش مشکلات، پیشنهادات یا سوالات:
-- **ایمیل**: cinascorp@gmail.com
-- **تلگرام**: @cinascorp
-- **مسائل GitHub**: [Issues](https://github.com/cinascorp/peyda/issues)
-
----
 
 **سامانه پیدا - محافظت از آسمان ایران** 🇮🇷
 **Peyda System - Protecting Iranian Skies** 
@@ -232,6 +219,8 @@ npm run start
 
 ## 🛠️ Technical Specifications
 
+
+
 ### Platform Requirements
 - **Web-Based** - Runs in any modern mobile browser
 - **ArcGIS Integration** - Professional mapping and geospatial analysis
@@ -267,9 +256,22 @@ This is a demonstration/training system only. No real-world military assets are 
 
 Military Training and Development Use Only
 
----
-
 **Developed for Supreme Commanders and General-level tactical operations**  
 *Mobile-optimized C4ISR platform with advanced UAV SIDC capabilities* 
 
 # AEGIS C4ISR - سیستم فرماندهی و کنترل پیشرفته پهپاد
+
+########################################################################################################################################
+
+## مجوز / License
+
+این پروژه تحت مجوز MIT منتشر شده است. برای اطلاعات بیشتر فایل LICENSE را مطالعه کنید.
+
+## تماس و پشتیبانی / Contact & Support
+
+برای گزارش مشکلات، پیشنهادات یا سوالات:
+- **ایمیل**: cinascorp@gmail.com
+- **تلگرام**: @cinascorp
+- **مسائل GitHub**: [Issues](https://github.com/cinascorp/peyda/issues)
+
+
