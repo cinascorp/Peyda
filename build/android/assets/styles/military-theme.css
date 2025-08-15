@@ -1,0 +1,564 @@
+/* Military Theme CSS for C4ISR System */
+
+:root {
+    --military-primary: #1a1a1a;
+    --military-secondary: #2d2d2d;
+    --military-accent: #00ff41;
+    --military-warning: #ff6b35;
+    --military-danger: #ff0000;
+    --military-success: #00ff88;
+    --military-info: #00bfff;
+    --military-text: #e0e0e0;
+    --military-text-muted: #888888;
+    --military-border: #404040;
+    --military-shadow: rgba(0, 0, 0, 0.8);
+}
+
+/* Military Typography */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+.military-font {
+    font-family: 'Orbitron', monospace;
+}
+
+.military-mono {
+    font-family: 'Share Tech Mono', monospace;
+}
+
+/* Military Header */
+.military-header {
+    background: linear-gradient(135deg, var(--military-primary) 0%, var(--military-secondary) 100%);
+    border-bottom: 2px solid var(--military-accent);
+    box-shadow: 0 4px 20px var(--military-shadow);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.military-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--military-accent), transparent);
+    animation: scan-line 3s linear infinite;
+}
+
+@keyframes scan-line {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.header-left, .header-center, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--military-accent);
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-shadow: 0 0 10px var(--military-accent);
+}
+
+.logo i {
+    font-size: 2rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.system-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    background: rgba(0, 255, 65, 0.1);
+    border: 1px solid var(--military-accent);
+    border-radius: 20px;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    animation: blink 1.5s ease-in-out infinite;
+}
+
+.status-indicator.online {
+    background: var(--military-success);
+    box-shadow: 0 0 10px var(--military-success);
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.threat-level {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid var(--military-danger);
+    border-radius: 25px;
+}
+
+.threat-label {
+    color: var(--military-text-muted);
+    font-size: 0.9rem;
+}
+
+.threat-value {
+    color: var(--military-danger);
+    font-weight: 700;
+    text-shadow: 0 0 5px var(--military-danger);
+}
+
+.language-selector select {
+    background: var(--military-secondary);
+    color: var(--military-text);
+    border: 1px solid var(--military-border);
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.user-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn-danger {
+    background: var(--military-danger);
+    color: white;
+}
+
+.btn-warning {
+    background: var(--military-warning);
+    color: white;
+}
+
+.btn-info {
+    background: var(--military-info);
+    color: white;
+}
+
+/* Control Sidebar */
+.control-sidebar {
+    background: var(--military-primary);
+    border-right: 2px solid var(--military-border);
+    width: 350px;
+    overflow-y: auto;
+    box-shadow: 4px 0 20px var(--military-shadow);
+}
+
+.control-panel {
+    padding: 20px;
+}
+
+.panel-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: var(--military-secondary);
+    border: 1px solid var(--military-border);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px var(--military-shadow);
+}
+
+.section-title {
+    color: var(--military-accent);
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--military-border);
+    padding-bottom: 10px;
+}
+
+.source-checkbox, .layer-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(0, 255, 65, 0.05);
+    border: 1px solid var(--military-border);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.source-checkbox:hover, .layer-checkbox:hover {
+    background: rgba(0, 255, 65, 0.1);
+    border-color: var(--military-accent);
+}
+
+.source-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: auto;
+}
+
+.source-status.online {
+    background: var(--military-success);
+    box-shadow: 0 0 5px var(--military-success);
+}
+
+.source-status.offline {
+    background: var(--military-danger);
+    box-shadow: 0 0 5px var(--military-danger);
+}
+
+.filter-group {
+    margin-bottom: 15px;
+}
+
+.filter-group label {
+    display: block;
+    color: var(--military-text);
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.range-inputs input {
+    flex: 1;
+    background: var(--military-primary);
+    color: var(--military-text);
+    border: 1px solid var(--military-border);
+    padding: 8px;
+    border-radius: 3px;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.range-inputs select {
+    width: 100%;
+    background: var(--military-primary);
+    color: var(--military-text);
+    border: 1px solid var(--military-border);
+    padding: 8px;
+    border-radius: 3px;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.view-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.view-btn {
+    flex: 1;
+    padding: 12px;
+    background: var(--military-primary);
+    color: var(--military-text);
+    border: 1px solid var(--military-border);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.view-btn.active {
+    background: var(--military-accent);
+    color: var(--military-primary);
+    border-color: var(--military-accent);
+}
+
+/* Map Container */
+.map-container {
+    flex: 1;
+    position: relative;
+    background: var(--military-primary);
+}
+
+.map-view {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+.map-view.active {
+    display: block;
+}
+
+.map-controls-overlay {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.zoom-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.map-btn {
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.7);
+    color: var(--military-text);
+    border: 1px solid var(--military-border);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.map-btn:hover {
+    background: rgba(0, 255, 65, 0.2);
+    border-color: var(--military-accent);
+}
+
+.map-info {
+    background: rgba(0, 0, 0, 0.8);
+    color: var(--military-text);
+    padding: 10px;
+    border-radius: 5px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Details Sidebar */
+.details-sidebar {
+    background: var(--military-primary);
+    border-left: 2px solid var(--military-border);
+    width: 350px;
+    overflow-y: auto;
+    box-shadow: -4px 0 20px var(--military-shadow);
+}
+
+.details-panel {
+    padding: 20px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--military-border);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--military-text-muted);
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: var(--military-danger);
+}
+
+.flight-details {
+    color: var(--military-text);
+}
+
+.no-selection {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--military-text-muted);
+}
+
+.no-selection i {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+/* Status Bar */
+.status-bar {
+    background: var(--military-secondary);
+    border-top: 2px solid var(--military-border);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+}
+
+.status-left, .status-center, .status-right {
+    display: flex;
+    gap: 20px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--military-text);
+}
+
+.status-item i {
+    color: var(--military-accent);
+}
+
+/* Notifications */
+.notifications-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification {
+    background: var(--military-secondary);
+    color: var(--military-text);
+    padding: 15px 20px;
+    border-radius: 5px;
+    border-left: 4px solid var(--military-accent);
+    box-shadow: 0 4px 20px var(--military-shadow);
+    max-width: 400px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Loading Screen */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--military-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    text-align: center;
+    color: var(--military-accent);
+}
+
+.military-logo {
+    font-size: 3rem;
+    margin-bottom: 30px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.loading-bar {
+    width: 300px;
+    height: 4px;
+    background: var(--military-border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.loading-progress {
+    height: 100%;
+    background: var(--military-accent);
+    animation: loading 3s ease-in-out infinite;
+}
+
+@keyframes loading {
+    0% { width: 0%; }
+    50% { width: 70%; }
+    100% { width: 100%; }
+}
+
+.loading-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.1rem;
+    color: var(--military-text);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .control-sidebar, .details-sidebar {
+        width: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    .military-header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .header-left, .header-center, .header-right {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .control-sidebar, .details-sidebar {
+        width: 100%;
+        position: static;
+    }
+    
+    .main-content {
+        flex-direction: column;
+    }
+}

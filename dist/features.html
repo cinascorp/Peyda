@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C4ISR System Features - ویژگی‌های سیستم</title>
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="../styles/main.css" />
+    <link rel="stylesheet" href="../styles/military-theme.css" />
+    
+    <style>
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: var(--military-text);
+        }
+        
+        .features-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--military-primary) 0%, var(--military-secondary) 100%);
+            border-radius: 15px;
+            border: 2px solid var(--military-accent);
+        }
+        
+        .features-header h1 {
+            color: var(--military-accent);
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px var(--military-accent);
+        }
+        
+        .features-header p {
+            font-size: 1.2rem;
+            color: var(--military-text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: var(--military-secondary);
+            border: 1px solid var(--military-border);
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--military-accent), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .feature-card:hover::before {
+            left: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--military-accent);
+            box-shadow: 0 10px 30px rgba(0, 255, 65, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--military-accent);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .feature-title {
+            color: var(--military-accent);
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .feature-description {
+            color: var(--military-text);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            color: var(--military-text-muted);
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .feature-list li::before {
+            content: '►';
+            color: var(--military-accent);
+            position: absolute;
+            left: 0;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--military-accent);
+            color: var(--military-primary);
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            background: var(--military-success);
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 255, 65, 0.4);
+        }
+        
+        .system-stats {
+            background: var(--military-primary);
+            border: 1px solid var(--military-border);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: var(--military-secondary);
+            border-radius: 10px;
+            border: 1px solid var(--military-border);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            color: var(--military-accent);
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: var(--military-text-muted);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .features-header h1 {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .back-button {
+                position: relative;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i> Back to Main
+    </button>
+
+    <div class="features-container">
+        <div class="features-header">
+            <h1><i class="fas fa-satellite-dish"></i> C4ISR System Features</h1>
+            <p>Comprehensive Military Command, Control, Communications, Computers, Intelligence, Surveillance, and Reconnaissance System</p>
+        </div>
+
+        <div class="system-stats">
+            <h2 style="color: var(--military-accent); text-align: center; margin-bottom: 30px;">
+                <i class="fas fa-chart-line"></i> System Capabilities
+            </h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Real-time Monitoring</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1000+</div>
+                    <div class="stat-label">Aircraft Tracked</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Data Sources</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">3D</div>
+                    <div class="stat-label">Visualization</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-plane"></i>
+                </div>
+                <h3 class="feature-title">Flight Tracking</h3>
+                <p class="feature-description">
+                    Advanced aircraft tracking with real-time position, altitude, speed, and heading data from multiple sources.
+                </p>
+                <ul class="feature-list">
+                    <li>Real-time ADS-B data</li>
+                    <li>FlightRadar24 integration</li>
+                    <li>OpenSky Network support</li>
+                    <li>Historical flight paths</li>
+                    <li>Altitude and speed monitoring</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="feature-title">Threat Detection</h3>
+                <p class="feature-description">
+                    Intelligent threat assessment and alerting system for military and security applications.
+                </p>
+                <ul class="feature-list">
+                    <li>AI-powered threat analysis</li>
+                    <li>Real-time alerting</li>
+                    <li>Risk level assessment</li>
+                    <li>Pattern recognition</li>
+                    <li>Automated notifications</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3 class="feature-title">Advanced Mapping</h3>
+                <p class="feature-description">
+                    Multi-layer mapping system with satellite imagery, terrain data, and weather information.
+                </p>
+                <ul class="feature-list">
+                    <li>2D and 3D map views</li>
+                    <li>Satellite imagery layers</li>
+                    <li>Terrain visualization</li>
+                    <li>Weather overlays</li>
+                    <li>Custom map layers</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <h3 class="feature-title">3D Globe</h3>
+                <p class="feature-description">
+                    Interactive 3D Earth visualization with satellite orbits and flight path projections.
+                </p>
+                <ul class="feature-list">
+                    <li>WebGL-powered rendering</li>
+                    <li>Satellite orbit visualization</li>
+                    <li>Flight path projections</li>
+                    <li>Interactive controls</li>
+                    <li>Real-time updates</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-language"></i>
+                </div>
+                <h3 class="feature-title">Multi-Language</h3>
+                <p class="feature-description">
+                    International support with multiple language interfaces for global military operations.
+                </p>
+                <ul class="feature-list">
+                    <li>English interface</li>
+                    <li>Persian (فارسی) support</li>
+                    <li>Swedish (Svenska) support</li>
+                    <li>Real-time translation</li>
+                    <li>Cultural adaptations</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">Security Features</h3>
+                <p class="feature-description">
+                    Advanced security measures including GPS jamming detection and stealth mode operations.
+                </p>
+                <ul class="feature-list">
+                    <li>GPS jamming detection</li>
+                    <li>Stealth mode activation</li>
+                    <li>Encrypted communications</li>
+                    <li>Access control</li>
+                    <li>Audit logging</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-signal"></i>
+                </div>
+                <h3 class="feature-title">Data Sources</h3>
+                <p class="feature-description">
+                    Integration with multiple aviation data sources for comprehensive coverage and redundancy.
+                </p>
+                <ul class="feature-list">
+                    <li>FlightRadar24 API</li>
+                    <li>OpenSky Network</li>
+                    <li>ADSB.lol integration</li>
+                    <li>KiwiSDR support</li>
+                    <li>Custom data feeds</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3 class="feature-title">Mobile Ready</h3>
+                <p class="feature-description">
+                    Responsive design optimized for mobile devices and field operations.
+                </p>
+                <ul class="feature-list">
+                    <li>Responsive design</li>
+                    <li>Touch controls</li>
+                    <li>Offline capabilities</li>
+                    <li>Mobile notifications</li>
+                    <li>Cross-platform support</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            if (window.opener) {
+                window.close();
+            } else {
+                window.history.back();
+            }
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.feature-card');
+            
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.style.animation = 'fadeInUp 0.6s ease forwards';
+            });
+        });
+
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .feature-card {
+                opacity: 0;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

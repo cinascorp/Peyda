@@ -1,0 +1,174 @@
+/* 3D Globe Viewer Styles */
+
+#3d-globe {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 50%, #0c0c0c 100%);
+    overflow: hidden;
+}
+
+#3d-globe canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.globe-controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+}
+
+.globe-control-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(0, 0, 0, 0.8);
+    color: var(--military-accent);
+    border: 2px solid var(--military-accent);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.globe-control-btn:hover {
+    background: rgba(0, 255, 65, 0.2);
+    transform: scale(1.1);
+    box-shadow: 0 0 20px var(--military-accent);
+}
+
+.globe-control-btn.active {
+    background: var(--military-accent);
+    color: var(--military-primary);
+}
+
+.globe-info {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: var(--military-text);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid var(--military-border);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9rem;
+    max-width: 300px;
+}
+
+.globe-info h4 {
+    color: var(--military-accent);
+    margin: 0 0 10px 0;
+    font-size: 1rem;
+}
+
+.globe-info p {
+    margin: 5px 0;
+    color: var(--military-text-muted);
+}
+
+.globe-info .value {
+    color: var(--military-text);
+    font-weight: bold;
+}
+
+/* 3D Scene Elements */
+.earth-atmosphere {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.atmosphere-layer {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 191, 255, 0.1) 0%, transparent 70%);
+    animation: atmosphere-glow 4s ease-in-out infinite;
+}
+
+@keyframes atmosphere-glow {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+/* Satellite Orbits */
+.satellite-orbit {
+    position: absolute;
+    border: 1px solid rgba(0, 255, 65, 0.3);
+    border-radius: 50%;
+    animation: orbit-rotation 20s linear infinite;
+}
+
+@keyframes orbit-rotation {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Flight Paths */
+.flight-path {
+    position: absolute;
+    height: 2px;
+    background: linear-gradient(90deg, var(--military-accent), transparent);
+    border-radius: 1px;
+    animation: path-trail 3s ease-in-out infinite;
+}
+
+@keyframes path-trail {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
+
+/* 3D Navigation Hints */
+.navigation-hints {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--military-text-muted);
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.navigation-hints .hint {
+    margin: 5px 0;
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+    display: inline-block;
+}
+
+/* Responsive 3D Controls */
+@media (max-width: 768px) {
+    .globe-controls {
+        top: 10px;
+        left: 10px;
+    }
+    
+    .globe-control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .globe-info {
+        bottom: 10px;
+        left: 10px;
+        max-width: 250px;
+        font-size: 0.8rem;
+    }
+}
