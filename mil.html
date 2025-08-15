@@ -89,7 +89,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 120px;
+      height: 140px;
       background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
       z-index: 1000;
       border-top: 2px solid #3498db;
@@ -107,7 +107,7 @@
       color: white;
       border: none;
       padding: 10px 5px;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: bold;
       cursor: pointer;
       border-right: 1px solid #34495e;
@@ -358,18 +358,18 @@
       <div id="actions" class="tab-panel active">
         <div class="action-grid">
           <button class="action-btn intercept" onclick="militaryAction('intercept')">
-            🚁 رهگیری
+            رهگیری
           </button>
           <button class="action-btn destroy" onclick="militaryAction('destroy')">
-            <a href="https://google.com">      
-            💥 انهدام
+            <a href="3d.html">      
+             انهدام 
                 </a>
           </button>
           <button class="action-btn jam" onclick="militaryAction('jam')">
-            📡 تداخل
+            تداخل
           </button>
           <button class="action-btn track" onclick="militaryAction('track')">
-            🎯 ردیابی
+            ردیابی
           </button>
         </div>
       </div>
@@ -396,16 +396,16 @@
       <div id="command" class="tab-panel">
         <div class="command-grid">
           <button class="command-btn" onclick="commandAction('alert')">
-            🚨 آژیر خطر
+            آژیر خطر
           </button>
           <button class="command-btn" onclick="commandAction('scramble')">
-            ✈️ اعزام جنگنده
+            اعزام جنگنده
           </button>
           <button class="command-btn" onclick="commandAction('defense')">
-            🛡️ دفاع ملی
+            دفاع ملی
           </button>
           <button class="command-btn" onclick="commandAction('coordination')">
-            📞 هماهنگی
+            هماهنگی
           </button>
         </div>
       </div>
@@ -424,7 +424,7 @@
 
   <!-- Demo Warning Modal -->
   <div class="demo-warning" id="demoWarning">
-    <h3>⚠️ سیستم آزمایشی ⚠️</h3>
+    <h3>⚠ سیستم آزمایشی ⚠</h3>
     <p>این سامانه در حالت آزمایشی است</p>
     <p>هیچ تداخل فیزیکی در پروازها صورت نمی‌گیرد</p>
     <button onclick="closeDemoWarning()" style="margin-top: 10px; padding: 5px 15px; background: #3498db; color: white; border: none; border-radius: 5px;">متوجه شدم</button>
@@ -444,8 +444,9 @@
       const view = new MapView({
         container: "viewDiv",
         map: map,
-        center: [53, 30],
-        zoom: 8
+        center: [53, 33],
+        zoom: 9,
+        min-zoom: 2
       });
 
       const basemapToggle = new BasemapToggle({
@@ -686,12 +687,12 @@
         if (zoom >= 8) return "20px";
         if (zoom >= 6) return "28px";
         if (zoom >= 3) return "36px";
-        return "18px";
+        return "15px";
       }
 
       function createMilitaryPopupContent(flight) {
         const flightradarLink = flight.hex && flight.flight !== 'نامشخص' ? 
-          `<a class="flightradar-link" href="https://www.flightradar24.com/${flight.hex}/${flight.flight}/3d" target="_blank">نمایش ۳بعدی مسیر</a>` : '';
+          `<a class="flightradar-link" href="https://www.flightradar24.com/${flight.hex}/${flight.hex}/3d" target="_blank">نمایش ۳بعدی مسیر</a>` : '';
         
         const actionButtons = `
           <div style="margin-top: 10px; direction: ltr;">
@@ -803,12 +804,12 @@
               },
               attributes: flight,
               popupTemplate: {
-                title: flightType === 'drone' ? "🚁 پهپاد - TAR" :
-                       flightType === 'unknown' ? "❓ شیء ناشناس" :
-                       flightType === 'fighter' ? "⚔️ جنگنده نظامی" :
-                       flightType === 'navy' ? "🚢 هواپیمای نیروی دریایی" :
-                       flightType === 'iranian' ? "🇮🇷 هواپیمای ایرانی" :
-                       flightType === 'military' ? "🎖️ پرواز نظامی" : "✈️ پرواز غیرنظامی",
+                title: flightType === 'drone' ? "پهباد" :
+                       flightType === 'unknown' ? "شیء ناشناس" :
+                       flightType === 'fighter' ? "⚔ جنگنده نظامی" :
+                       flightType === 'navy' ? "هواپیمای نیروی دریایی" :
+                       flightType === 'iranian' ? "هواپیمای ایرانی" :
+                       flightType === 'military' ? " پرواز نظامی" : "✈ پرواز غیرنظامی",
                 content: flightType === 'drone' ? createDronePopupContent(flight) :
                          (flightType === 'military' || flightType === 'fighter' || flightType === 'navy' || flightType === 'iranian') ? createMilitaryPopupContent(flight) :
                          createCivilianPopupContent(flight)
