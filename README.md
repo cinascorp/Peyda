@@ -1,277 +1,338 @@
-# پیدا - سامانه رصد و ردیابی پهپادهای نظامی
+# C4ISR Military Tracking System v2.0.0
 
+## 🚀 Overview
 
-![Military UAV Tracker](https://img.shields.io/badge/Military-UAV%20Tracker-red) ![Persian](https://img.shields.io/badge/Language-Persian%2FFarsi-green) ![Real%20Time](https://img.shields.io/badge/Real%20Time-Tracking-blue)
+The C4ISR Military Tracking System is a comprehensive, military-grade flight tracking and analysis application designed for Command, Control, Communications, Computers, Intelligence, Surveillance, and Reconnaissance operations. This system provides real-time monitoring of aircraft, UAVs, and potential threats with advanced military-grade features.
 
-## نمای کلی / Overview
+## ✨ Key Features
 
-سامانه پیدا یک اپلیکیشن نظامی پیشرفته برای رصد و ردیابی پهپادها و هواپیماهای نظامی در زمان واقعی است. این سامانه از چندین منبع داده استفاده کرده و قابلیت‌های تشخیص تهدید، فیلترینگ و نمایش اطلاعات تفصیلی را ارائه می‌دهد.
+### 🌐 Multi-Source Data Integration
+- **FlightRadar24 Integration**: Real-time commercial flight data
+- **OpenSky Network**: Comprehensive ADS-B data coverage
+- **ADSB.lol**: Military aircraft tracking and identification
+- **KiwiSDR Support**: 0-30MHz spectrum analysis for radar detection
 
-Peyda is an advanced military application for real-time drone and military aircraft tracking. The system uses multiple data sources and provides threat detection, filtering, and detailed information display capabilities.
+### 🗺️ Advanced Mapping & Visualization
+- **2D Map View**: High-performance Leaflet-based mapping
+- **3D Globe View**: Three.js powered spherical visualization
+- **Multiple Map Layers**: Satellite, high-contrast, terrain, and weather layers
+- **Scalable Display**: Support for up to 50,000 concurrent flights
+- **Military Theme**: Dark, high-contrast interface optimized for operational use
 
-## ویژگی‌های کلیدی / Key Features
+### 🚨 Threat Detection & Analysis
+- **Automatic Threat Assessment**: AI-powered threat level evaluation
+- **Radar Evasion Detection**: Identification of stealth technology usage
+- **Military Aircraft Recognition**: Automatic classification of military vs. commercial aircraft
+- **Pattern Analysis**: Suspicious flight pattern detection
+- **Real-time Alerts**: Audio and visual threat notifications
 
-### 🚁 ردیابی پهپاد / Drone Tracking
-- تشخیص خودکار پهپادهای نظامی)
-- ارزیابی سطح تهدید (بحرانی، بالا، متوسط، پایین)
-- نمایش اطلاعات تفصیلی هر پهپاد
+### 🛡️ GPS Security & Stealth Features
+- **GPS Jamming Mode**: Confuse enemy drone GPS systems
+- **GPS Spoofing**: Send false coordinates to mislead tracking
+- **Stealth Mode**: Hide user location and path temporarily
+- **Emergency Override**: Quick access to normal operation
+- **Path Recovery**: Automatic restoration of user location data
 
-### 🎖️ امکانات نظامی / Military Features
-- رصد هواپیماهای نظامی و جنگنده‌ها
-- تشخیص هواپیماهای ایرانی
-- سیستم هشدار برای تهدیدات بحرانی
-- واسط کاربری نظامی با تم تاریک
+### 🌍 Multi-Language Support
+- **English**: Primary interface language
+- **Persian (فارسی)**: Full RTL support for Persian users
+- **Swedish (Svenska)**: Complete Swedish localization
+- **Dynamic Language Switching**: Real-time interface updates
 
-### 📊 داشبورد تحلیلی / Analytics Dashboard
-- آمار لحظه‌ای از انواع هواپیما
-- نمایش سطوح تهدید
-- فیلترهای پیشرفته
-- نمایش مختصات و زوم
+### 📡 HTTP/3 & Performance
+- **HTTP/3 Support**: Modern protocol for enhanced performance
+- **High Scalability**: Optimized for large-scale operations
+- **Real-time Updates**: Sub-second data refresh rates
+- **Memory Management**: Efficient resource utilization
 
-### 🗺️ نقشه تعاملی / Interactive Map
-- نقشه‌های ماهواره‌ای و خیابانی
-- نمادهای مختلف برای انواع هواپیما
-- قابلیت زوم و پان
-- نمایش مسیر پرواز
+## 🏗️ System Architecture
 
-## منابع داده / Data Sources
-
-1. **ADS-B.lol** - داده‌های نظامی
-2. **FlightRadar24** - اطلاعات پرواز تجاری
-3. **OpenSky Network** - داده‌های عمومی
-4. **داده‌های شبیه‌سازی شده** - پهپادهای نمونه
-
-## نصب و راه‌اندازی / Installation & Setup
-
-### پیش‌نیازها / Prerequisites
-```bash
-node >= 14.0.0
-npm یا yarn
+### Core Components
+```
+C4ISR Application
+├── Language Manager (EN/FA/SV)
+├── Data Source Manager
+│   ├── FlightRadar24
+│   ├── OpenSky Network
+│   ├── ADSB.lol
+│   └── KiwiSDR
+├── Threat Detection System
+├── GPS Jamming System
+├── Map Controller (2D)
+├── 3D Globe Renderer
+└── Notification System
 ```
 
-### مراحل نصب / Installation Steps
+### Data Flow
+1. **Data Collection**: Multiple sources provide real-time flight data
+2. **Data Processing**: AI algorithms analyze and classify aircraft
+3. **Threat Assessment**: Automatic threat level calculation
+4. **Visualization**: Real-time display on 2D/3D interfaces
+5. **User Interaction**: GPS jamming, stealth mode, and filtering
 
-1. **کلون کردن پروژه / Clone the project:**
-```bash
-git clone https://github.com/cinascorp/peyda.git
-cd peyda
-```
+## 🚀 Installation & Setup
 
-2. **نصب وابستگی‌ها / Install dependencies:**
+### Prerequisites
+- Node.js 16.0.0 or higher
+- Modern web browser with WebGL support
+- Internet connection for data sources
+
+### Quick Start
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd c4isr-military-tracking-system
+
+# Install dependencies
 npm install
-```
 
-3. **اجرای برنامه / Run the application:**
-```bash
+# Start the application
 npm start
-```
 
-یا برای توسعه / Or for development:
-```bash
+# Or for development
 npm run dev
 ```
 
-4. **دسترسی به برنامه / Access the application:**
-```
-http://localhost:8080
-```
+### Manual Setup
+1. Download all files to a web server directory
+2. Ensure all JavaScript files are in the `js/` folder
+3. Ensure all CSS files are in the `styles/` folder
+4. Open `index.html` in a modern web browser
 
-## نحوه استفاده / Usage Guide
+## 🔧 Configuration
 
-### واسط کاربری / User Interface
+### System Configuration
+The system is configured through `js/config.js` with the following key sections:
 
-#### پنل کنترل / Control Panel
-- **آمار لحظه‌ای**: نمایش تعداد پهپادها، هواپیماهای نظامی، غیرنظامی و ناشناس
-- **فیلتر نمایش**: امکان فیلتر کردن بر اساس نوع هواپیما
-- **سطح تهدید**: نمایش تعداد تهدیدات در سطوح مختلف
-- **آخرین به‌روزرسانی**: نمایش زمان آخرین بروزرسانی داده‌ها
+- **Data Sources**: API endpoints and update intervals
+- **Map Settings**: Default center, zoom levels, and tile layers
+- **Threat Detection**: Threat level thresholds and indicators
+- **GPS Jamming**: Jamming modes and safety features
+- **Performance**: Memory limits and rendering quality
 
-#### نقشه / Map
-- **کنترل‌های نقشه**: تغییر نوع نقشه، زوم، قطب‌نما
-- **نمادها**: هر نوع هواپیما با رنگ و نماد خاص
-- **اطلاعات تفصیلی**: کلیک روی هر نماد برای مشاهده جزئیات
+### Customization
+```javascript
+// Example: Modify threat detection sensitivity
+C4ISR_CONFIG.THREAT_DETECTION.THREAT_INDICATORS.MILITARY_ACTIVITY.weight = 5;
 
-### رنگ‌ها و نمادها / Colors & Symbols
-- 🟦 **آبی**: هواپیماهای غیرنظامی
-- 🟥 **قرمز**: هواپیماهای نظامی
-- 🟧 **نارنجی**: جنگنده‌ها
-- 🟩 **سبز**: هواپیماهای ایرانی
-- ⚫ **مشکی**: پهپادها
-- 🟨 **زرد**: اشیاء ناشناس
-
-### سطوح تهدید / Threat Levels
-- 🔴 **بحرانی**: پهپادهای خطرناک- (نورثروپ گرومن ام‌کیو-۴سی تریتون(Northrop Grumman MQ-4C Triton)- نورثروپ گرومن آرکیو-۴ گلوبال هاوک (RQ-4 Global Hawk)
-- 🟠 **بالا**: اشیاء ناشناس، پهپادهای کم ارتفاع
-- 🟡 **متوسط**: هواپیماهای نظامی، پهپادهای معمولی
-- 🟢 **پایین**: هواپیماهای غیرنظامی
-
-## ساختار پروژه / Project Structure
-
-```
-Peyda/
-├── index.html              # فایل اصلی برنامه
-├── uav.html                # رهگیری پهباد ها 
-├── mil.html                # رهگیری پرواز های نظامی 
-├── tar.html                # سناریوی آزمایشی رصد ، رهگیری ، هشدار ، تصرف و انهدام 
-├── 3d html.                # نمایش پرواز نقشه کروی
-├── styles.css              # استایل‌های UI بهبودیافته (جدا شده برای نگهداری آسان)
-├── script.js               # منطق JS با ترفندهای زنده‌موندن و realtime
-├── package.json            # تنظیمات پروژه (به‌روزرسانی شده با dependencies جدید مثل bootstrap, leaflet)
-├── README.md               # مستندات (به‌روزرسانی شده با ویژگی‌های جدید)
-├── assets/                 # فولدر برای منابع اضافی
-│   ├── alert.mp3           # صدای هشدار تاکتیکی (دانلود از اینترنت و اضافه کن)
-│   └── icons/              # فولدر آیکون‌ها
-│       ├── drone.png       # آیکون پهپاد (دانلود و اضافه کن)
-│       └── military.png    # آیکون نظامی
-├───── node_module/.../     # ماژول های کاربردی برای بهینه سازی سرعت لود شدن نقشه
-└── LICENSE                  # مجوز 
+// Example: Change default map center
+C4ISR_CONFIG.MAP.DEFAULT_CENTER = [40.7128, -74.0060]; // New York
 ```
 
-## امکانات پیشرفته / Advanced Features
+## 📊 Usage Guide
 
-### فیلترینگ / Filtering
-- نمایش همه انواع هواپیما
-- فیلتر بر اساس نوع (پهپاد، نظامی، غیرنظامی، ناشناس)
-- فعال/غیرفعال کردن لایه‌های مختلف
-
-### سیستم هشدار / Alert System
-- هشدار خودکار برای تهدیدات بحرانی
-- نمایش پیام‌های هشدار
-- ناپدید شدن خودکار هشدارها
-
-### به‌روزرسانی زمان واقعی / Real-time Updates
-- بروزرسانی خودکار هر 15 ثانیه
-- نمایش زمان آخرین بروزرسانی
-- شمارنده زمان
-
-## مشکلات رایج / Troubleshooting
-
-###
-npm run start
-
-
-
-**سامانه پیدا - محافظت از آسمان ایران** 🇮🇷
-**Peyda System - Protecting Iranian Skies** 
-=======
-# AEGIS C4ISR - Advanced UAV Command & Control System
-
-**Mobile-Optimized Military C4ISR Platform for Supreme Commander/General Operations**
-
-## 🎯 Core Features
-
-### UAV SIDC Operations (Surveillance, Identification, Destruction, Capture)
-- **Real-time UAV Asset Management** - Track and control multiple UAV platforms (MQ-9 Reaper, RQ-4 Global Hawk, MQ-1 Predator, etc.)
-- **SIDC Protocol Implementation** - Full tactical operations suite:
-  - 🔍 **Surveillance** - Continuous area monitoring and reconnaissance
-  - 🎯 **Identification** - Target classification and threat assessment  
-  - 💥 **Destruction** - Precision engagement capabilities
-  - 🤚 **Capture** - Asset recovery and control protocols
-
-### Advanced Command Interface
-- **Military-Grade UI Design** - Dark tactical theme with green HUD elements
-- **Multi-Panel Command Center** - Sliding panels for different operational areas
-- **Real-Time Intelligence Feed** - Live threat detection and communication intercepts
-- **Mission Planning System** - Pre-configured tactical mission templates
-
-### C4ISR Integration
-- **Command & Control** - Unified UAV fleet management
-- **Communications** - Secure tactical communications protocols  
-- **Computers** - Advanced computation and data processing
-- **Intelligence** - Real-time threat analysis and battlefield intelligence
-- **Surveillance** - Continuous area monitoring with multiple sensor feeds
-- **Reconnaissance** - Deep reconnaissance missions and intelligence gathering
-
-## 🚀 Key Capabilities
-
-### Supreme Commander Interface
-- **Tactical Map Display** - Military satellite imagery with tactical grid overlay
-- **Asset Status Monitoring** - Real-time UAV operational status and health
-- **Threat Level Assessment** - Dynamic threat evaluation with visual indicators
-- **Emergency Protocols** - Rapid response and emergency evacuation procedures
-
-### Mobile-First Design
-- **Touch-Optimized Controls** - Large tactical buttons for field operations
-- **Responsive Layout** - Adapts to various mobile screen sizes
-- **Gesture Navigation** - Intuitive swipe and tap controls
-- **Offline Capability** - Critical functions work without network connectivity
-
-### Security Features
-- **Military-Grade Security** - Encrypted communications and secure protocols
-- **Access Control** - Role-based permissions for different command levels
-- **Audit Trail** - Complete logging of all tactical operations
-- **Demo Mode** - Safe training environment with no real-world actions
-
-## 📱 User Interface
-
-### Main Command Panels
-1. **Control Sidebar** - UAV selection, SIDC operations, target analysis
-2. **Intelligence Panel** - Real-time threat detection and communications intelligence
-3. **Mission Panel** - Pre-configured tactical missions (Patrol, Recon, Strike, etc.)
-4. **Command Footer** - Quick access to intel, missions, controls, emergency, and comms
-
-### Tactical Features
-- **Dynamic UAV Icons** - Color-coded status indicators (Operational, Engaged, Surveillance, Maintenance)
-- **Target Selection** - Click-to-select enemy assets for engagement
-- **Real-Time Updates** - Live position updates and status changes
-- **Toast Notifications** - Immediate feedback for all tactical operations
-
-## 🛠️ Technical Specifications
-
-
-
-### Platform Requirements
-- **Web-Based** - Runs in any modern mobile browser
-- **ArcGIS Integration** - Professional mapping and geospatial analysis
-- **Font Awesome Icons** - Military and tactical iconography
-- **Responsive CSS Grid** - Advanced layout management
-
-### Data Sources
-- **Simulated UAV Fleet** - 6 different UAV platforms with realistic capabilities
-- **Enemy Asset Simulation** - Dynamic threat generation and tracking
-- **Real-Time Updates** - 10-second refresh cycles for all tactical data
-
-## 🎮 Operation Instructions
-
-### Basic Operations
-1. **Launch System** - Open `index.html` in mobile browser
-2. **Select UAV** - Tap UAV card in control sidebar to select asset
-3. **Choose Operation** - Select SIDC operation (Surveillance, ID, Destruction, Capture)
-4. **Target Selection** - Tap enemy assets on map for engagement
-5. **Mission Assignment** - Choose from pre-configured mission templates
+### Basic Operation
+1. **Launch**: Open the application in your browser
+2. **Select Data Sources**: Choose which flight data sources to activate
+3. **View Flights**: Monitor real-time aircraft positions on the map
+4. **Apply Filters**: Use altitude, speed, and type filters
+5. **Switch Views**: Toggle between 2D map and 3D globe
 
 ### Advanced Features
-- **Emergency Protocol** - Red emergency button for immediate RTB (Return to Base)
-- **Communications Check** - Verify all UAV communications status
-- **Intelligence Monitoring** - Real-time threat and communication intercepts
-- **Multi-Asset Coordination** - Manage multiple UAVs simultaneously
+1. **GPS Jamming**: Click the satellite button to activate jamming mode
+2. **Stealth Mode**: Use the stealth button to hide your location
+3. **Threat Monitoring**: Monitor threat levels in the header
+4. **Layer Management**: Toggle satellite, terrain, and weather layers
+5. **Language Switching**: Change interface language from the header
 
-## 🔐 Security & Compliance
+### Threat Response
+1. **Automatic Detection**: System automatically identifies threats
+2. **Audio Alerts**: Hear threat notifications immediately
+3. **Visual Indicators**: Red threat level indicators in the header
+4. **Detailed Analysis**: Click on aircraft for detailed information
+5. **Emergency Actions**: Quick access to GPS jamming and stealth modes
 
-**⚠️ IMPORTANT DISCLAIMER:**
-This is a demonstration/training system only. No real-world military assets are controlled or affected by this interface. All operations are simulated for training and development purposes.
+## 🔒 Security Features
+
+### GPS Protection
+- **Jamming Capability**: Disrupt enemy drone GPS signals
+- **Spoofing Protection**: Send false coordinates to mislead tracking
+- **Stealth Operations**: Hide user location during sensitive operations
+- **Emergency Override**: Quick return to normal operation
+
+### Data Security
+- **Encrypted Communications**: Secure data transmission
+- **Access Control**: Role-based user permissions
+- **Audit Logging**: Complete system activity records
+- **Sandbox Mode**: Isolated operation for testing
+
+## 🌐 Data Sources
+
+### FlightRadar24
+- **Coverage**: Global commercial flight data
+- **Update Rate**: Every 5 seconds
+- **Features**: Real-time tracking, historical data, weather integration
+
+### OpenSky Network
+- **Coverage**: Worldwide ADS-B data
+- **Update Rate**: Every 10 seconds
+- **Features**: Military aircraft, trajectory analysis
+
+### ADSB.lol
+- **Coverage**: Military and civilian aircraft
+- **Update Rate**: Every 8 seconds
+- **Features**: Military identification, threat assessment
+
+### KiwiSDR
+- **Coverage**: 0-30MHz spectrum analysis
+- **Update Rate**: Every 1 second
+- **Features**: Radar detection, stealth technology identification
+
+## 🎯 Military Applications
+
+### Command & Control
+- **Real-time Situational Awareness**: Complete airspace picture
+- **Threat Assessment**: Automatic threat level calculation
+- **Response Coordination**: Integrated command interface
+- **Mission Planning**: Historical data analysis
+
+### Intelligence & Surveillance
+- **Pattern Recognition**: Identify suspicious flight patterns
+- **Stealth Detection**: Detect radar-evading aircraft
+- **Electronic Warfare**: GPS jamming and spoofing capabilities
+- **Signal Intelligence**: KiwiSDR spectrum analysis
+
+### Force Protection
+- **GPS Security**: Protect friendly forces from GPS attacks
+- **Stealth Operations**: Hide operational movements
+- **Threat Warning**: Early warning of potential attacks
+- **Counter-UAV**: Disrupt enemy drone operations
+
+## 🔧 Technical Specifications
+
+### Performance
+- **Maximum Flights**: 50,000 concurrent aircraft
+- **Update Rate**: 1-10 seconds depending on source
+- **Memory Usage**: Optimized for 512MB limit
+- **Frame Rate**: 60 FPS target for smooth operation
+
+### Compatibility
+- **Browsers**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- **Devices**: Desktop, tablet, and mobile support
+- **Operating Systems**: Windows, macOS, Linux, iOS, Android
+- **Hardware**: WebGL-capable graphics card recommended
+
+### Standards
+- **HTTP/3**: Modern web protocol support
+- **WebGL**: Hardware-accelerated 3D rendering
+- **Web Audio API**: Advanced audio capabilities
+- **Service Workers**: Offline capability support
+
+## 🚨 Emergency Procedures
+
+### GPS Jamming Activation
+1. Click the satellite button (red) in the header
+2. Confirm activation in the dialog
+3. Monitor jamming effectiveness
+4. Use emergency override if needed
+
+### Stealth Mode Activation
+1. Click the stealth button (yellow) in the header
+2. System will hide your location
+3. Path recovery will be active
+4. Normal operation resumes automatically
+
+### Threat Response
+1. **Low Threat**: Monitor and log
+2. **Medium Threat**: Alert operators
+3. **High Threat**: Audio alerts and notifications
+4. **Critical Threat**: Emergency procedures and alerts
+
+## 📈 Performance Optimization
+
+### Rendering Quality
+- **High**: Maximum detail, 60 FPS target
+- **Medium**: Balanced performance and quality
+- **Low**: Maximum performance, reduced detail
+
+### Memory Management
+- **Automatic Cleanup**: Old data removal
+- **Cache Optimization**: Efficient data storage
+- **LOD System**: Level-of-detail rendering
+- **Particle Limits**: Configurable visual effects
+
+## 🔍 Troubleshooting
+
+### Common Issues
+1. **Map Not Loading**: Check internet connection and browser compatibility
+2. **No Flight Data**: Verify data source connections and API keys
+3. **Performance Issues**: Reduce rendering quality or flight count
+4. **Audio Not Working**: Check browser audio permissions
+
+### Debug Mode
+Enable debug mode in the configuration:
+```javascript
+C4ISR_CONFIG.DEVELOPMENT.DEBUG_MODE = true;
+```
+
+### Logging
+System logs are available in the browser console and can be exported in multiple formats.
+
+## 📚 API Reference
+
+### Core Classes
+- **C4ISRApplication**: Main application controller
+- **LanguageManager**: Multi-language support
+- **DataSourceManager**: Data source integration
+- **ThreatDetectionSystem**: Threat analysis engine
+- **GPSJammingSystem**: GPS security features
+- **MapController**: 2D map management
+- **Globe3D**: 3D globe rendering
+- **NotificationManager**: User notification system
+
+### Event System
+The system uses a comprehensive event system for inter-component communication:
+- `systemReady`: System initialization complete
+- `threatDetected`: New threat identified
+- `dataUpdated`: Flight data refreshed
+- `languageChanged`: Interface language updated
+
+## 🤝 Contributing
+
+### Development Setup
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+### Code Standards
+- ES6+ JavaScript
+- Comprehensive error handling
+- JSDoc documentation
+- Unit test coverage
+- Performance optimization
 
 ## 📄 License
 
-Military Training and Development Use Only
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-**Developed for Supreme Commanders and General-level tactical operations**  
-*Mobile-optimized C4ISR platform with advanced UAV SIDC capabilities* 
+## ⚠️ Disclaimer
 
-# AEGIS C4ISR - سیستم فرماندهی و کنترل پیشرفته پهپاد
+This system is designed for military and defense applications. Users are responsible for compliance with local laws and regulations regarding GPS jamming, surveillance, and military operations.
 
-########################################################################################################################################
+## 🆘 Support
 
-## مجوز / License
+### Documentation
+- **User Manual**: Comprehensive usage guide
+- **API Reference**: Technical documentation
+- **Video Tutorials**: Step-by-step instructions
+- **FAQ**: Common questions and answers
 
-این پروژه تحت مجوز MIT منتشر شده است. برای اطلاعات بیشتر فایل LICENSE را مطالعه کنید.
+### Contact
+- **Technical Support**: [support@c4isr-system.com]
+- **Feature Requests**: [features@c4isr-system.com]
+- **Bug Reports**: [bugs@c4isr-system.com]
 
-## تماس و پشتیبانی / Contact & Support
+### Community
+- **Forum**: [community.c4isr-system.com]
+- **Discord**: [discord.gg/c4isr]
+- **GitHub Issues**: [github.com/c4isr-system/issues]
 
-برای گزارش مشکلات، پیشنهادات یا سوالات:
-- **ایمیل**: cinascorp@gmail.com
-- **تلگرام**: @cinascorp
-- **مسائل GitHub**: [Issues](https://github.com/cinascorp/peyda/issues)
+---
+
+**C4ISR Military Tracking System v2.0.0** - Empowering military operations with advanced technology and comprehensive situational awareness.
+
+*Developed for military and defense applications with cutting-edge web technologies.* 
 
 

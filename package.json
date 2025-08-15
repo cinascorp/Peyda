@@ -1,59 +1,40 @@
 {
-  "name": "peyda-military-uav-tracker",
-  "version": "1.0.0",
-  "description": "سامانه رصد و ردیابی پهپادهای نظامی - Military UAV Tracking System",
-  "main": "uav.html",
+  "name": "c4isr-military-tracking-system",
+  "version": "2.0.0",
+  "description": "Comprehensive C4ISR Military UAV Tracking and Analysis System with HTTP/3, Multi-Source Integration, and Advanced Threat Detection",
+  "main": "index.html",
   "scripts": {
     "start": "npx http-server . -p 8080 -o",
-    "dev": "npx live-server --port=8080 --open=uav.html",
+    "dev": "npx live-server --port=8080 --open=index.html",
     "build": "echo 'Static HTML application - no build required'",
     "test": "echo 'No tests configured yet'"
   },
   "keywords": [
+    "c4isr",
+    "military",
     "uav",
     "drone",
-    "military", 
     "tracking",
     "surveillance",
     "adsb",
-    "flightradar",
-    "persian",
-    "farsi",
-    "iran",
-    "defense"
+    "flightradar24",
+    "opensky",
+    "http3",
+    "threat-detection",
+    "radar-evasion",
+    "stealth",
+    "kiwisdr",
+    "gps-jamming",
+    "multi-language",
+    "3d-mapping"
   ],
-  "author": "Military UAV Tracking Team",
+  "author": "Military C4ISR Development Team",
   "license": "MIT",
   "devDependencies": {
     "http-server": "^14.1.1",
     "live-server": "^1.2.2"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/military/peyda-uav-tracker"
-  },
-  "bugs": {
-    "url": "https://github.com/military/peyda-uav-tracker/issues"
-  },
-  "homepage": "https://github.com/military/peyda-uav-tracker#readme",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   }
-}
-
-{
-  "name": "peyda-uav-tracker",
-  "version": "1.0.0",
-  "description": "سامانه ردیابی پهپاد نظامی",
-  "main": "index.html",
-  "scripts": {
-    "start": "http-server",
-    "dev": "http-server -p 8080"
-  },
-  "dependencies": {
-    "bootstrap": "^5.3.0",
-    "leaflet": "^1.9.4"
-  },
-  "author": "Anonymous Black Hat",
-  "license": "MIT"
 }

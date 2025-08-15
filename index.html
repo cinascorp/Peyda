@@ -1,56 +1,345 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AEGIS C4ISR — منو اصلی</title>
-<style>
-:root{--bg:#0a0a0a;--card:#121212;--accent:#00ff41;--muted:#bfbfbf}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:Segoe UI,Roboto,system-ui;background:linear-gradient(180deg,#071016 0%,#0a0a0a 100%);color:#fff}
-.container{height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;padding:20px}
-.brand{font-weight:700;font-size:22px;color:var(--accent);text-align:center}
-.buttons{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
-.btn{min-width:140px;padding:14px 18px;border-radius:12px;border:2px solid rgba(255,255,255,0.06);background:linear-gradient(180deg,#111 0%,#0f0f0f 100%);cursor:pointer;font-weight:700}
-.btn.uav{border-color:rgba(0,255,65,0.15)}
-.btn.mil{border-color:rgba(255,68,68,0.12)}
-.btn.tar{border-color:rgba(52,152,219,0.12)}
-.lang-toggle{position:fixed;top:18px;left:18px;background:var(--card);padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04)}
-.lang-toggle button{background:transparent;border:none;color:var(--muted);padding:6px 8px;cursor:pointer;font-weight:700}
-.footer{position:fixed;bottom:18px;right:18px;color:var(--muted);font-size:13px}
-@media(max-width:600px){.buttons{flex-direction:column;width:100%}.btn{width:100%}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C4ISR Military Tracking System - سامانه ردیابی نظامی</title>
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/css/3d-viewer.css" />
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/military-theme.css" />
+    <link rel="stylesheet" href="styles/3d-viewer.css" />
+    
+    <!-- HTTP/3 Support -->
+    <script>
+        // HTTP/3 detection and fallback
+        if ('connection' in navigator && navigator.connection.effectiveType === '4g') {
+            // Enable HTTP/3 features
+            window.HTTP3_ENABLED = true;
+        }
+    </script>
 </head>
 <body>
-<div class="lang-toggle" id="langToggle">
-<button data-lang="fa">فارسی</button>
-<button data-lang="en">EN</button>
-</div>
-<div class="container">
-<div class="brand" id="brand">سامانه یکپارچه رصد و فرماندهی</div>
-<div class="buttons">
-<a class="btn uav" id="btnUAV" href="uav.html">UAV</a>
-<a class="btn mil" id="btnMIL" href="mil.html">MIL</a>
-<a class="btn tar" id="btnTAR" href="tar.html">TAR</a>
-<a class="btn 3d" id="btnTAR" href="3d.html">3D</a>
-</div>
-<div class="footer" id="footer">Developed by Cinascorp ©</div>
-</div>
-<script>
-function setLang(lang){
-document.documentElement.lang = (lang==='en') ? 'en' : 'fa';
-document.getElementById('brand').textContent = (lang==='en') ? 'AEGIS C4ISR — Unified Tracking & Command' : 'سامانه یکپارچه رصد و فرماندهی';
-document.getElementById('btnUAV').href = 'uav.html?lang='+lang;
-document.getElementById('btnMIL').href = 'mil.html?lang='+lang;
-document.getElementById('btnTAR').href = 'tar.html?lang='+lang;
-document.getElementById('btn3D').href = '3d.html?lang='+lang;
-  
-document.getElementById('footer').textContent = (lang==='en') ? 'Developed by Cinascorp ©' : 'کاری از سینا';
-localStorage.setItem('site_lang', lang);
-}
-document.querySelectorAll('#langToggle button').forEach(btn=>btn.addEventListener('click',e=>setLang(e.target.dataset.lang)));
-const initialLang = new URLSearchParams(location.search).get('lang') || localStorage.getItem('site_lang') || 'fa';
-setLang(initialLang);
-</script>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="military-logo">
+                <i class="fas fa-satellite-dish"></i>
+                <span>C4ISR</span>
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <div class="loading-text">Initializing Military Tracking System...</div>
+        </div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div id="app" class="app-container" style="display: none;">
+        <!-- Header with Language Selector -->
+        <header class="military-header">
+            <div class="header-left">
+                <div class="logo">
+                    <i class="fas fa-satellite-dish"></i>
+                    <span class="logo-text" data-en="C4ISR Military Tracking" data-fa="سامانه ردیابی نظامی" data-sv="Militär Spårningssystem">C4ISR Military Tracking</span>
+                </div>
+                <div class="system-status">
+                    <span class="status-indicator online"></span>
+                    <span class="status-text" data-en="SYSTEM ONLINE" data-fa="سیستم فعال" data-sv="SYSTEM ONLINE">SYSTEM ONLINE</span>
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <div class="threat-level">
+                    <span class="threat-label" data-en="THREAT LEVEL:" data-fa="سطح تهدید:" data-sv="HOTNIVÅ:">THREAT LEVEL:</span>
+                    <span class="threat-value" id="threat-level">LOW</span>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="language-selector">
+                    <select id="language-selector">
+                        <option value="en">English</option>
+                        <option value="fa">فارسی</option>
+                        <option value="sv">Svenska</option>
+                    </select>
+                </div>
+                <div class="user-controls">
+                    <button id="gps-jam-btn" class="btn btn-danger" title="GPS Jamming Mode">
+                        <i class="fas fa-satellite"></i>
+                    </button>
+                    <button id="stealth-mode-btn" class="btn btn-warning" title="Stealth Mode">
+                        <i class="fas fa-user-secret"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Left Sidebar - Control Panel -->
+            <aside class="control-sidebar">
+                <div class="control-panel">
+                    <div class="panel-section">
+                        <h3 class="section-title" data-en="Data Sources" data-fa="منابع داده" data-sv="Datakällor">
+                            <i class="fas fa-database"></i>
+                            Data Sources
+                        </h3>
+                        
+                        <div class="source-controls">
+                            <label class="source-checkbox">
+                                <input type="checkbox" id="flightradar24-source" checked>
+                                <span class="checkmark"></span>
+                                <span class="source-name">FlightRadar24</span>
+                                <span class="source-status online"></span>
+                            </label>
+                            
+                            <label class="source-checkbox">
+                                <input type="checkbox" id="opensky-source" checked>
+                                <span class="checkmark"></span>
+                                <span class="source-name">OpenSky Network</span>
+                                <span class="source-status online"></span>
+                            </label>
+                            
+                            <label class="source-checkbox">
+                                <input type="checkbox" id="adsb-source" checked>
+                                <span class="checkmark"></span>
+                                <span class="source-name">ADSB.lol</span>
+                                <span class="source-status online"></span>
+                            </label>
+                            
+                            <label class="source-checkbox">
+                                <input type="checkbox" id="kiwisdr-source">
+                                <span class="checkmark"></span>
+                                <span class="source-name">KiwiSDR (0-30MHz)</span>
+                                <span class="source-status offline"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <h3 class="section-title" data-en="Filters" data-fa="فیلترها" data-sv="Filter">
+                            <i class="fas fa-filter"></i>
+                            Filters
+                        </h3>
+                        
+                        <div class="filter-controls">
+                            <div class="filter-group">
+                                <label>Altitude Range (ft)</label>
+                                <div class="range-inputs">
+                                    <input type="number" id="alt-min" placeholder="0" min="0" max="60000">
+                                    <span>-</span>
+                                    <input type="number" id="alt-max" placeholder="60000" min="0" max="60000">
+                                </div>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>Speed Range (kts)</label>
+                                <div class="range-inputs">
+                                    <input type="number" id="speed-min" placeholder="0" min="0" max="2000">
+                                    <span>-</span>
+                                    <input type="number" id="speed-max" placeholder="2000" min="0" max="2000">
+                                </div>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>Aircraft Type</label>
+                                <select id="aircraft-type-filter">
+                                    <option value="all">All Types</option>
+                                    <option value="military">Military</option>
+                                    <option value="commercial">Commercial</option>
+                                    <option value="private">Private</option>
+                                    <option value="uav">UAV/Drone</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>Threat Level</label>
+                                <select id="threat-filter">
+                                    <option value="all">All Levels</option>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <h3 class="section-title" data-en="Map Layers" data-fa="لایه های نقشه" data-sv="Kartlager">
+                            <i class="fas fa-layer-group"></i>
+                            Map Layers
+                        </h3>
+                        
+                        <div class="layer-controls">
+                            <label class="layer-checkbox">
+                                <input type="checkbox" id="satellite-layer">
+                                <span class="checkmark"></span>
+                                <span class="layer-name">Satellite</span>
+                            </label>
+                            
+                            <label class="layer-checkbox">
+                                <input type="checkbox" id="contrast-layer">
+                                <span class="checkmark"></span>
+                                <span class="layer-name">High Contrast</span>
+                            </label>
+                            
+                            <label class="layer-checkbox">
+                                <input type="checkbox" id="terrain-layer">
+                                <span class="checkmark"></span>
+                                <span class="layer-name">Terrain</span>
+                            </label>
+                            
+                            <label class="layer-checkbox">
+                                <input type="checkbox" id="weather-layer">
+                                <span class="checkmark"></span>
+                                <span class="layer-name">Weather</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <h3 class="section-title" data-en="View Mode" data-fa="حالت نمایش" data-sv="Visningsläge">
+                            <i class="fas fa-eye"></i>
+                            View Mode
+                        </h3>
+                        
+                        <div class="view-controls">
+                            <button id="2d-view-btn" class="view-btn active">
+                                <i class="fas fa-map"></i>
+                                <span>2D Map</span>
+                            </button>
+                            <button id="3d-view-btn" class="view-btn">
+                                <i class="fas fa-cube"></i>
+                                <span>3D Globe</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center Content - Map Area -->
+            <section class="map-container">
+                <!-- 2D Map View -->
+                <div id="2d-map" class="map-view active"></div>
+                
+                <!-- 3D Globe View -->
+                <div id="3d-globe" class="map-view"></div>
+                
+                <!-- Map Controls Overlay -->
+                <div class="map-controls-overlay">
+                    <div class="zoom-controls">
+                        <button id="zoom-in" class="map-btn">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button id="zoom-out" class="map-btn">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button id="reset-view" class="map-btn">
+                            <i class="fas fa-home"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="map-info">
+                        <span id="flight-count">0 Flights</span>
+                        <span id="current-zoom">Zoom: 10</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Sidebar - Flight Details -->
+            <aside class="details-sidebar">
+                <div class="details-panel">
+                    <div class="panel-header">
+                        <h3 class="section-title" data-en="Flight Details" data-fa="جزئیات پرواز" data-sv="Flygdetaljer">
+                            <i class="fas fa-plane"></i>
+                            Flight Details
+                        </h3>
+                        <button id="close-details" class="close-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flight-details" id="flight-details">
+                        <div class="no-selection">
+                            <i class="fas fa-plane"></i>
+                            <p data-en="Select a flight to view details" data-fa="پروازی را برای مشاهده جزئیات انتخاب کنید" data-sv="Välj ett flyg för att se detaljer">
+                                Select a flight to view details
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Bottom Status Bar -->
+        <footer class="status-bar">
+            <div class="status-left">
+                <span class="status-item">
+                    <i class="fas fa-signal"></i>
+                    <span id="connection-status">Connected</span>
+                </span>
+                <span class="status-item">
+                    <i class="fas fa-clock"></i>
+                    <span id="last-update">Last Update: --</span>
+                </span>
+            </div>
+            
+            <div class="status-center">
+                <span class="status-item">
+                    <i class="fas fa-plane"></i>
+                    <span id="total-flights">Total Flights: 0</span>
+                </span>
+                <span class="status-item">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="threats-detected">Threats: 0</span>
+                </span>
+            </div>
+            
+            <div class="status-right">
+                <span class="status-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span id="system-mode">Mode: Normal</span>
+                </span>
+                <span class="status-item">
+                    <i class="fas fa-cog"></i>
+                    <span id="system-version">v2.0.0</span>
+                </span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Notifications Container -->
+    <div id="notifications" class="notifications-container"></div>
+
+    <!-- Audio Elements for Alerts -->
+    <audio id="threat-alert" preload="auto">
+        <source src="audio/threat-alert.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="system-alert" preload="auto">
+        <source src="audio/system-alert.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/data-sources.js"></script>
+    <script src="js/flight-tracker.js"></script>
+    <script src="js/threat-detection.js"></script>
+    <script src="js/map-controller.js"></script>
+    <script src="js/3d-globe.js"></script>
+    <script src="js/gps-jamming.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
