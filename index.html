@@ -32,6 +32,7 @@ html,body{height:100%;font-family:Segoe UI,Roboto,system-ui;background:linear-gr
 <a class="btn uav" id="btnUAV" href="UAV.html">UAV</a>
 <a class="btn mil" id="btnMIL" href="mil.html">MIL</a>
 <a class="btn tar" id="btnTAR" href="tar.html">TAR</a>
+<a class="btn 3d" id="btnTAR" href="tar.html">3D</a>
 </div>
 <div class="footer" id="footer">Developed by Cinascorp ©</div>
 </div>
@@ -42,6 +43,8 @@ document.getElementById('brand').textContent = (lang==='en') ? 'AEGIS C4ISR — 
 document.getElementById('btnUAV').href = 'uav.html?lang='+lang;
 document.getElementById('btnMIL').href = 'mil.html?lang='+lang;
 document.getElementById('btnTAR').href = 'tar.html?lang='+lang;
+document.getElementById('btn3D').href = '3d.html?lang='+lang;
+  
 document.getElementById('footer').textContent = (lang==='en') ? 'Developed by Cinascorp ©' : 'کاری از سینا';
 localStorage.setItem('site_lang', lang);
 }
