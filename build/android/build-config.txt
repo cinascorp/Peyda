@@ -1,0 +1,31 @@
+# C4ISR Military Tracking System - Build Configuration
+# Use this configuration in WebsiteToAPKBuilder
+
+APP_NAME=C4ISR Military Tracking
+PACKAGE_NAME=com.c4isr.military.tracking
+VERSION_CODE=1
+VERSION_NAME=2.0.0
+MIN_SDK=21
+TARGET_SDK=33
+
+# Main URL (for WebsiteToAPKBuilder)
+MAIN_URL=file:///android_asset/index.html
+LOAD_MODE=assets
+
+# Required Permissions
+PERMISSIONS=INTERNET,ACCESS_NETWORK_STATE,ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION,VIBRATE,WAKE_LOCK,FOREGROUND_SERVICE
+
+# Build Settings
+BUILD_TYPE=release
+ARCHITECTURE=arm64
+SIGNING=auto
+
+# Features
+FEATURES=hardware_acceleration,fullscreen,immersive_mode
+
+# Notes
+# 1. Set Main URL to: file:///android_asset/index.html
+# 2. Choose "Load from assets" mode
+# 3. Enable all listed permissions
+# 4. Use ARM64 architecture for best performance
+# 5. Sign with your keystore or generate new one

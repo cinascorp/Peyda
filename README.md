@@ -1,83 +1,26 @@
-# C4ISR Military Tracking System v2.0.0
+# C4ISR Military Tracking System
 
-## 🚀 Overview
+A comprehensive Command, Control, Communications, Computers, Intelligence, Surveillance, and Reconnaissance (C4ISR) system for military aircraft tracking and threat detection.
 
-The C4ISR Military Tracking System is a comprehensive, military-grade flight tracking and analysis application designed for Command, Control, Communications, Computers, Intelligence, Surveillance, and Reconnaissance operations. This system provides real-time monitoring of aircraft, UAVs, and potential threats with advanced military-grade features.
+## 🌟 Features
 
-## ✨ Key Features
+- **Real-time Flight Tracking**: Monitor aircraft positions, altitude, speed, and heading
+- **Multi-Source Integration**: FlightRadar24, OpenSky Network, ADSB.lol, KiwiSDR
+- **AI-Powered Threat Detection**: Intelligent threat assessment and alerting
+- **Advanced Mapping**: 2D and 3D visualization with multiple map layers
+- **Multi-Language Support**: English, Persian (فارسی), Swedish (Svenska)
+- **Security Features**: GPS jamming detection, stealth mode operations
+- **Mobile Optimized**: Responsive design for field operations
+- **Real-time Alerts**: Audio and visual notifications for threats
 
-### 🌐 Multi-Source Data Integration
-- **FlightRadar24 Integration**: Real-time commercial flight data
-- **OpenSky Network**: Comprehensive ADS-B data coverage
-- **ADSB.lol**: Military aircraft tracking and identification
-- **KiwiSDR Support**: 0-30MHz spectrum analysis for radar detection
-
-### 🗺️ Advanced Mapping & Visualization
-- **2D Map View**: High-performance Leaflet-based mapping
-- **3D Globe View**: Three.js powered spherical visualization
-- **Multiple Map Layers**: Satellite, high-contrast, terrain, and weather layers
-- **Scalable Display**: Support for up to 50,000 concurrent flights
-- **Military Theme**: Dark, high-contrast interface optimized for operational use
-
-### 🚨 Threat Detection & Analysis
-- **Automatic Threat Assessment**: AI-powered threat level evaluation
-- **Radar Evasion Detection**: Identification of stealth technology usage
-- **Military Aircraft Recognition**: Automatic classification of military vs. commercial aircraft
-- **Pattern Analysis**: Suspicious flight pattern detection
-- **Real-time Alerts**: Audio and visual threat notifications
-
-### 🛡️ GPS Security & Stealth Features
-- **GPS Jamming Mode**: Confuse enemy drone GPS systems
-- **GPS Spoofing**: Send false coordinates to mislead tracking
-- **Stealth Mode**: Hide user location and path temporarily
-- **Emergency Override**: Quick access to normal operation
-- **Path Recovery**: Automatic restoration of user location data
-
-### 🌍 Multi-Language Support
-- **English**: Primary interface language
-- **Persian (فارسی)**: Full RTL support for Persian users
-- **Swedish (Svenska)**: Complete Swedish localization
-- **Dynamic Language Switching**: Real-time interface updates
-
-### 📡 HTTP/3 & Performance
-- **HTTP/3 Support**: Modern protocol for enhanced performance
-- **High Scalability**: Optimized for large-scale operations
-- **Real-time Updates**: Sub-second data refresh rates
-- **Memory Management**: Efficient resource utilization
-
-## 🏗️ System Architecture
-
-### Core Components
-```
-C4ISR Application
-├── Language Manager (EN/FA/SV)
-├── Data Source Manager
-│   ├── FlightRadar24
-│   ├── OpenSky Network
-│   ├── ADSB.lol
-│   └── KiwiSDR
-├── Threat Detection System
-├── GPS Jamming System
-├── Map Controller (2D)
-├── 3D Globe Renderer
-└── Notification System
-```
-
-### Data Flow
-1. **Data Collection**: Multiple sources provide real-time flight data
-2. **Data Processing**: AI algorithms analyze and classify aircraft
-3. **Threat Assessment**: Automatic threat level calculation
-4. **Visualization**: Real-time display on 2D/3D interfaces
-5. **User Interaction**: GPS jamming, stealth mode, and filtering
-
-## 🚀 Installation & Setup
+## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 16.0.0 or higher
 - Modern web browser with WebGL support
 - Internet connection for data sources
 
-### Quick Start
+### Installation
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -86,253 +29,262 @@ cd c4isr-military-tracking-system
 # Install dependencies
 npm install
 
-# Start the application
+# Start development server
 npm start
-
-# Or for development
-npm run dev
 ```
 
-### Manual Setup
-1. Download all files to a web server directory
-2. Ensure all JavaScript files are in the `js/` folder
-3. Ensure all CSS files are in the `styles/` folder
-4. Open `index.html` in a modern web browser
+### Development
+```bash
+# Start with live reload
+npm run dev
+
+# Build for production
+npm run build
+```
+
+## 📱 Building Android APK
+
+### Using WebsiteToAPKBuilder
+
+1. **Download WebsiteToAPKBuilder**
+   - Visit: https://websitetoapk.com/
+   - Download the latest version for your OS
+
+2. **Configure Build Settings**
+   - **App Name**: C4ISR Military Tracking
+   - **Package Name**: com.c4isr.military.tracking
+   - **Version Code**: 1
+   - **Version Name**: 2.0.0
+   - **Min SDK**: 21 (Android 5.0)
+   - **Target SDK**: 33 (Android 13)
+
+3. **Set Main URL**
+   - **Main URL**: `file:///android_asset/index.html`
+   - **Load Mode**: Load from assets
+
+4. **Configure Permissions**
+   - Internet Access
+   - Location Services
+   - Network State
+   - Vibration
+   - Wake Lock
+   - Foreground Service
+
+5. **Build Configuration**
+   - **Build Type**: Release
+   - **Signing**: Use your keystore or generate new one
+   - **Architecture**: ARM64 (recommended)
+
+6. **Generate APK**
+   - Click "Build APK"
+   - Wait for build completion
+   - Download and install the generated APK
+
+### Manual APK Creation
+
+If you prefer manual creation:
+
+1. **Use Android Studio**
+   - Import the project
+   - Use the provided `android-manifest.xml`
+   - Build APK from Build menu
+
+2. **Use Command Line**
+   ```bash
+   # Install Android SDK
+   # Use Gradle to build
+   ./gradlew assembleRelease
+   ```
+
+## 🏗️ Project Structure
+
+```
+c4isr-military-tracking-system/
+├── index.html              # Main application entry point
+├── dist/
+│   └── features.html       # Features information page
+├── styles/
+│   ├── main.css           # Core application styles
+│   ├── military-theme.css # Military-themed styling
+│   └── 3d-viewer.css     # 3D globe viewer styles
+├── js/
+│   ├── app.js             # Main application controller
+│   ├── config.js          # Configuration settings
+│   ├── language.js        # Multi-language support
+│   ├── data-sources.js    # Data source management
+│   ├── flight-tracker.js  # Flight tracking system
+│   ├── threat-detection.js # AI threat detection
+│   ├── map-controller.js  # Map system controller
+│   ├── 3d-globe.js       # 3D globe renderer
+│   ├── gps-jamming.js    # GPS jamming detection
+│   └── notifications.js   # Notification system
+├── audio/
+│   ├── threat-alert.mp3  # Threat alert sound
+│   └── system-alert.mp3  # System alert sound
+├── android-manifest.xml   # Android manifest for APK building
+├── package.json           # Node.js dependencies
+└── README.md             # This file
+```
 
 ## 🔧 Configuration
 
-### System Configuration
-The system is configured through `js/config.js` with the following key sections:
+### Data Sources
+Configure your data source API keys in `js/config.js`:
 
-- **Data Sources**: API endpoints and update intervals
-- **Map Settings**: Default center, zoom levels, and tile layers
-- **Threat Detection**: Threat level thresholds and indicators
-- **GPS Jamming**: Jamming modes and safety features
-- **Performance**: Memory limits and rendering quality
-
-### Customization
 ```javascript
-// Example: Modify threat detection sensitivity
-C4ISR_CONFIG.THREAT_DETECTION.THREAT_INDICATORS.MILITARY_ACTIVITY.weight = 5;
-
-// Example: Change default map center
-C4ISR_CONFIG.MAP.DEFAULT_CENTER = [40.7128, -74.0060]; // New York
+const CONFIG = {
+    FLIGHTRADAR24: {
+        API_KEY: 'your_api_key_here',
+        BASE_URL: 'https://api.flightradar24.com'
+    },
+    OPENSKY: {
+        USERNAME: 'your_username',
+        PASSWORD: 'your_password'
+    },
+    // ... other sources
+};
 ```
 
-## 📊 Usage Guide
+### Map Configuration
+Set your map provider API keys:
 
-### Basic Operation
-1. **Launch**: Open the application in your browser
-2. **Select Data Sources**: Choose which flight data sources to activate
-3. **View Flights**: Monitor real-time aircraft positions on the map
-4. **Apply Filters**: Use altitude, speed, and type filters
-5. **Switch Views**: Toggle between 2D map and 3D globe
+```javascript
+const MAP_CONFIG = {
+    LEAFLET: {
+        TILE_LAYER: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    },
+    GOOGLE_MAPS: {
+        API_KEY: 'your_google_maps_api_key'
+    }
+};
+```
 
-### Advanced Features
-1. **GPS Jamming**: Click the satellite button to activate jamming mode
-2. **Stealth Mode**: Use the stealth button to hide your location
-3. **Threat Monitoring**: Monitor threat levels in the header
-4. **Layer Management**: Toggle satellite, terrain, and weather layers
-5. **Language Switching**: Change interface language from the header
+## 🎯 Usage
 
-### Threat Response
-1. **Automatic Detection**: System automatically identifies threats
-2. **Audio Alerts**: Hear threat notifications immediately
-3. **Visual Indicators**: Red threat level indicators in the header
-4. **Detailed Analysis**: Click on aircraft for detailed information
-5. **Emergency Actions**: Quick access to GPS jamming and stealth modes
+### Main Interface
+1. **Language Selection**: Choose your preferred language
+2. **Data Sources**: Enable/disable flight data sources
+3. **Map View**: Switch between 2D and 3D views
+4. **Filters**: Apply altitude, speed, and aircraft type filters
+5. **Threat Monitoring**: Monitor real-time threat levels
 
-## 🔒 Security Features
+### Features Page
+- Click the info button (ℹ️) in the header
+- View comprehensive system capabilities
+- Access detailed feature information
 
-### GPS Protection
-- **Jamming Capability**: Disrupt enemy drone GPS signals
-- **Spoofing Protection**: Send false coordinates to mislead tracking
-- **Stealth Operations**: Hide user location during sensitive operations
-- **Emergency Override**: Quick return to normal operation
+### Threat Detection
+- Automatic threat assessment for all flights
+- Real-time alerts for high-risk situations
+- Pattern recognition for suspicious behavior
 
-### Data Security
-- **Encrypted Communications**: Secure data transmission
-- **Access Control**: Role-based user permissions
-- **Audit Logging**: Complete system activity records
-- **Sandbox Mode**: Isolated operation for testing
-
-## 🌐 Data Sources
-
-### FlightRadar24
-- **Coverage**: Global commercial flight data
-- **Update Rate**: Every 5 seconds
-- **Features**: Real-time tracking, historical data, weather integration
-
-### OpenSky Network
-- **Coverage**: Worldwide ADS-B data
-- **Update Rate**: Every 10 seconds
-- **Features**: Military aircraft, trajectory analysis
-
-### ADSB.lol
-- **Coverage**: Military and civilian aircraft
-- **Update Rate**: Every 8 seconds
-- **Features**: Military identification, threat assessment
-
-### KiwiSDR
-- **Coverage**: 0-30MHz spectrum analysis
-- **Update Rate**: Every 1 second
-- **Features**: Radar detection, stealth technology identification
-
-## 🎯 Military Applications
-
-### Command & Control
-- **Real-time Situational Awareness**: Complete airspace picture
-- **Threat Assessment**: Automatic threat level calculation
-- **Response Coordination**: Integrated command interface
-- **Mission Planning**: Historical data analysis
-
-### Intelligence & Surveillance
-- **Pattern Recognition**: Identify suspicious flight patterns
-- **Stealth Detection**: Detect radar-evading aircraft
-- **Electronic Warfare**: GPS jamming and spoofing capabilities
-- **Signal Intelligence**: KiwiSDR spectrum analysis
-
-### Force Protection
-- **GPS Security**: Protect friendly forces from GPS attacks
-- **Stealth Operations**: Hide operational movements
-- **Threat Warning**: Early warning of potential attacks
-- **Counter-UAV**: Disrupt enemy drone operations
-
-## 🔧 Technical Specifications
-
-### Performance
-- **Maximum Flights**: 50,000 concurrent aircraft
-- **Update Rate**: 1-10 seconds depending on source
-- **Memory Usage**: Optimized for 512MB limit
-- **Frame Rate**: 60 FPS target for smooth operation
-
-### Compatibility
-- **Browsers**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
-- **Devices**: Desktop, tablet, and mobile support
-- **Operating Systems**: Windows, macOS, Linux, iOS, Android
-- **Hardware**: WebGL-capable graphics card recommended
-
-### Standards
-- **HTTP/3**: Modern web protocol support
-- **WebGL**: Hardware-accelerated 3D rendering
-- **Web Audio API**: Advanced audio capabilities
-- **Service Workers**: Offline capability support
-
-## 🚨 Emergency Procedures
-
-### GPS Jamming Activation
-1. Click the satellite button (red) in the header
-2. Confirm activation in the dialog
-3. Monitor jamming effectiveness
-4. Use emergency override if needed
-
-### Stealth Mode Activation
-1. Click the stealth button (yellow) in the header
-2. System will hide your location
-3. Path recovery will be active
-4. Normal operation resumes automatically
-
-### Threat Response
-1. **Low Threat**: Monitor and log
-2. **Medium Threat**: Alert operators
-3. **High Threat**: Audio alerts and notifications
-4. **Critical Threat**: Emergency procedures and alerts
-
-## 📈 Performance Optimization
-
-### Rendering Quality
-- **High**: Maximum detail, 60 FPS target
-- **Medium**: Balanced performance and quality
-- **Low**: Maximum performance, reduced detail
-
-### Memory Management
-- **Automatic Cleanup**: Old data removal
-- **Cache Optimization**: Efficient data storage
-- **LOD System**: Level-of-detail rendering
-- **Particle Limits**: Configurable visual effects
-
-## 🔍 Troubleshooting
+## 🐛 Troubleshooting
 
 ### Common Issues
-1. **Map Not Loading**: Check internet connection and browser compatibility
-2. **No Flight Data**: Verify data source connections and API keys
-3. **Performance Issues**: Reduce rendering quality or flight count
-4. **Audio Not Working**: Check browser audio permissions
+
+1. **Map Not Loading**
+   - Check internet connection
+   - Verify map API keys
+   - Clear browser cache
+
+2. **No Flight Data**
+   - Verify data source API keys
+   - Check network connectivity
+   - Review browser console for errors
+
+3. **3D Globe Not Working**
+   - Ensure WebGL is enabled
+   - Update graphics drivers
+   - Check browser compatibility
+
+4. **Audio Not Playing**
+   - Check device volume
+   - Verify audio file permissions
+   - Test with different browsers
 
 ### Debug Mode
-Enable debug mode in the configuration:
+Enable debug logging in `js/config.js`:
+
 ```javascript
-C4ISR_CONFIG.DEVELOPMENT.DEBUG_MODE = true;
+const DEBUG = true;
 ```
 
-### Logging
-System logs are available in the browser console and can be exported in multiple formats.
+### Performance Issues
+- Reduce map update frequency
+- Disable unused data sources
+- Use hardware acceleration
+- Optimize for mobile devices
 
-## 📚 API Reference
+## 🔒 Security Considerations
 
-### Core Classes
-- **C4ISRApplication**: Main application controller
-- **LanguageManager**: Multi-language support
-- **DataSourceManager**: Data source integration
-- **ThreatDetectionSystem**: Threat analysis engine
-- **GPSJammingSystem**: GPS security features
-- **MapController**: 2D map management
-- **Globe3D**: 3D globe rendering
-- **NotificationManager**: User notification system
+- **API Keys**: Keep your API keys secure
+- **HTTPS**: Use HTTPS in production
+- **Permissions**: Request minimal required permissions
+- **Data Privacy**: Follow data protection regulations
 
-### Event System
-The system uses a comprehensive event system for inter-component communication:
-- `systemReady`: System initialization complete
-- `threatDetected`: New threat identified
-- `dataUpdated`: Flight data refreshed
-- `languageChanged`: Interface language updated
+## 📱 Mobile Optimization
+
+- Responsive design for all screen sizes
+- Touch-friendly controls
+- Optimized for mobile browsers
+- Offline capability support
+
+## 🌐 Browser Support
+
+- Chrome 80+
+- Firefox 75+
+- Safari 13+
+- Edge 80+
+- Mobile browsers with WebGL support
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🤝 Contributing
 
-### Development Setup
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
 4. Test thoroughly
 5. Submit a pull request
 
-### Code Standards
-- ES6+ JavaScript
-- Comprehensive error handling
-- JSDoc documentation
-- Unit test coverage
-- Performance optimization
+## 📞 Support
 
-## 📄 License
+For support and questions:
+- Create an issue on GitHub
+- Check the troubleshooting section
+- Review the configuration options
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 🔄 Updates
 
-## ⚠️ Disclaimer
+- Regular security updates
+- New data source integrations
+- Performance improvements
+- Feature enhancements
 
-This system is designed for military and defense applications. Users are responsible for compliance with local laws and regulations regarding GPS jamming, surveillance, and military operations.
+## 📊 System Requirements
 
-## 🆘 Support
+### Development
+- Node.js 16.0.0+
+- Modern web browser
+- 4GB RAM minimum
+- 2GB free disk space
 
-### Documentation
-- **User Manual**: Comprehensive usage guide
-- **API Reference**: Technical documentation
-- **Video Tutorials**: Step-by-step instructions
-- **FAQ**: Common questions and answers
+### Production
+- Web server with HTTPS
+- 8GB RAM recommended
+- 5GB free disk space
+- High-speed internet connection
 
-### Contact
-- **Technical Support**: [support@c4isr-system.com]
-- **Feature Requests**: [features@c4isr-system.com]
-- **Bug Reports**: [bugs@c4isr-system.com]
-
-### Community
-- **Forum**: [community.c4isr-system.com]
-- **Discord**: [discord.gg/c4isr]
-- **GitHub Issues**: [github.com/c4isr-system/issues]
+### Android
+- Android 5.0 (API 21) or higher
+- 2GB RAM minimum
+- 100MB free storage
+- GPS and internet connectivity
 
 ---
 
-**C4ISR Military Tracking System v2.0.0** - Empowering military operations with advanced technology and comprehensive situational awareness.
-
-*Developed for military and defense applications with cutting-edge web technologies.* 
+**Note**: This is a military-grade tracking system. Ensure compliance with local regulations and obtain necessary permissions before deployment. 
 
 
