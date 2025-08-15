@@ -1,0 +1,19 @@
+{
+  "app.title": "C4ISR Säkert",
+  "map.base.dark": "Mörk",
+  "map.base.light": "Ljus",
+  "map.base.contrast": "Hög kontrast",
+  "map.base.satellite": "Satellit",
+  "panel.tracking": "Spårning",
+  "panel.flights": "Flyg",
+  "panel.settings": "Inställningar",
+  "flight.callsign": "Anropssignal",
+  "flight.icao": "ICAO24",
+  "flight.alt": "Höjd",
+  "flight.speed": "Hastighet",
+  "flight.heading": "Kurs",
+  "flight.source": "Källa",
+  "flight.military": "Militär",
+  "search.placeholder": "Sök anropssignal/ICAO24",
+  "alerts.risk": "Möjlig risk upptäckt"
+}

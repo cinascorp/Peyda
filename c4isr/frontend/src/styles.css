@@ -1,0 +1,42 @@
+@import 'maplibre-gl/dist/maplibre-gl.css';
+
+:root {
+  --bg: #0c1117;
+  --panel: #141a22;
+  --accent: #5dbb63;
+  --text: #e5e7eb;
+  --sub: #94a3b8;
+}
+
+* { box-sizing: border-box; }
+html, body, #root, .app-root { height: 100%; margin: 0; }
+
+.app-root { display: flex; flex-direction: column; background: var(--bg); color: var(--text); }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: #0b0f14; border-bottom: 1px solid #1f2937; }
+.topbar .title { font-weight: 700; letter-spacing: 0.5px; }
+.topbar .controls { display: flex; gap: 8px; align-items: center; }
+.topbar .styles { display: flex; gap: 6px; }
+.style-btn { background: #101720; color: var(--text); border: 1px solid #2b3847; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
+.style-btn.active { background: var(--accent); color: #0b0f14; border-color: var(--accent); }
+.lang-select { background: #101720; color: var(--text); border: 1px solid #2b3847; padding: 6px; border-radius: 4px; }
+
+.main { display: grid; grid-template-columns: 1fr 340px; gap: 8px; height: calc(100% - 46px); }
+.map { width: 100%; height: 100%; }
+
+.flight-list { background: var(--panel); padding: 8px; overflow: hidden; display: flex; flex-direction: column; }
+.flight-list .search { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #2b3847; background: #0f1720; color: var(--text); }
+.flight-list .items { overflow: auto; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.flight-item { padding: 8px; border: 1px solid #2b3847; border-radius: 4px; cursor: pointer; background: #0f1720; }
+.flight-item.mil { border-color: #7f1d1d; }
+.flight-item .line { display: flex; align-items: center; gap: 8px; }
+.flight-item .cs { font-weight: 600; }
+.flight-item .tag { font-size: 11px; background: #7f1d1d; color: #fee2e2; padding: 2px 6px; border-radius: 3px; }
+.flight-item .meta { margin-top: 4px; display: flex; justify-content: space-between; color: var(--sub); font-size: 12px; }
+
+.popup { color: #0b0f14; }
+
+@media (max-width: 960px) {
+  .main { grid-template-columns: 1fr; }
+  .flight-list { order: 2; height: 35vh; }
+  .map { height: 65vh; }
+}

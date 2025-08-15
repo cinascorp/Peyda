@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  backend:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ../backend:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: sh -c "pip install --no-cache-dir -r requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8080"
+
+  caddy:
+    image: caddy:2.7.6-alpine
+    ports:
+      - "8081:8081"
+      - "8443:8443/udp"
+      - "8443:8443/tcp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../frontend/dist:/srv:ro
+    depends_on:
+      - backend
+    restart: unless-stopped

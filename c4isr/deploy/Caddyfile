@@ -1,0 +1,29 @@
+{
+	auto_https off
+}
+
+:8081 {
+	encode zstd gzip
+	root * /srv
+	file_server
+	@api path /api* 
+	handle @api {
+		reverse_proxy backend:8080
+	}
+	try_files {path} /index.html
+	headers {
+		Access-Control-Allow-Origin *
+	}
+}
+
+:8443 {
+	encode zstd gzip
+	tls internal
+	root * /srv
+	file_server
+	@api path /api* 
+	handle @api {
+		reverse_proxy backend:8080
+	}
+	try_files {path} /index.html
+}

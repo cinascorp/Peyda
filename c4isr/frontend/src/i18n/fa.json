@@ -1,0 +1,19 @@
+{
+  "app.title": "نسخه امن C4ISR",
+  "map.base.dark": "تیره",
+  "map.base.light": "روشن",
+  "map.base.contrast": "کنتراست بالا",
+  "map.base.satellite": "ماهواره",
+  "panel.tracking": "ردیابی",
+  "panel.flights": "پروازها",
+  "panel.settings": "تنظیمات",
+  "flight.callsign": "علامت تماس",
+  "flight.icao": "ICAO24",
+  "flight.alt": "ارتفاع",
+  "flight.speed": "سرعت",
+  "flight.heading": "سمت",
+  "flight.source": "منبع",
+  "flight.military": "نظامی",
+  "search.placeholder": "جستجو بر اساس علامت تماس/ICAO24",
+  "alerts.risk": "خطر احتمالی شناسایی شد"
+}
