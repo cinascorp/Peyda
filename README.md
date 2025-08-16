@@ -1,290 +1,227 @@
-# C4ISR Military Tracking System
+# Flight Tracker - ردیاب پرواز
 
-A comprehensive Command, Control, Communications, Computers, Intelligence, Surveillance, and Reconnaissance (C4ISR) system for military aircraft tracking and threat detection.
+A lightweight, real-time flight tracking system that displays aircraft positions on an interactive map using free, open APIs.
 
-## 🌟 Features
+## 🌍 Features / ویژگی‌ها
 
-- **Real-time Flight Tracking**: Monitor aircraft positions, altitude, speed, and heading
-- **Multi-Source Integration**: FlightRadar24, OpenSky Network, ADSB.lol, KiwiSDR
-- **AI-Powered Threat Detection**: Intelligent threat assessment and alerting
-- **Advanced Mapping**: 2D and 3D visualization with multiple map layers
-- **Multi-Language Support**: English, Persian (فارسی), Swedish (Svenska)
-- **Security Features**: GPS jamming detection, stealth mode operations
-- **Mobile Optimized**: Responsive design for field operations
-- **Real-time Alerts**: Audio and visual notifications for threats
+- **Real-time Flight Tracking**: Monitor aircraft positions in real-time
+- **Multiple Data Sources**: Integrates with FlightRadar24, OpenSky Network, and ADSB.lol
+- **Interactive Map**: Built with Leaflet.js for smooth navigation
+- **Bilingual Support**: English and Persian (فارسی) interface
+- **Lightweight Design**: Optimized for performance without heavy dependencies
+- **Free APIs**: No paid subscriptions required
+- **Military Aircraft Detection**: Special focus on military and commercial aircraft
 
-## 🚀 Quick Start
+## 🚀 Quick Start / شروع سریع
 
-### Prerequisites
-- Node.js 16.0.0 or higher
-- Modern web browser with WebGL support
-- Internet connection for data sources
+### Option 1: Direct Browser Usage
+1. Open `index.html` in any modern web browser
+2. The system will automatically initialize and start tracking flights
+3. Use the sidebar controls to customize your view
 
-### Installation
+### Option 2: Local Server (Recommended)
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd c4isr-military-tracking-system
+# Using Python 3
+python3 -m http.server 8000
 
-# Install dependencies
-npm install
+# Using Node.js
+npx http-server
 
-# Start development server
-npm start
+# Using PHP
+php -S localhost:8000
 ```
 
-### Development
-```bash
-# Start with live reload
-npm run dev
+Then open `http://localhost:8000` in your browser.
 
-# Build for production
-npm run build
-```
+## 📡 Data Sources / منابع داده
 
-## 📱 Building Android APK
+### 1. FlightRadar24
+- **Base URL**: `data-cloud.flightradar24.com/zones/fcgi/js`
+- **Type**: JavaScript data files
+- **Update Rate**: Every 5 seconds
+- **Coverage**: Global commercial and private aircraft
 
-### Using WebsiteToAPKBuilder
+### 2. OpenSky Network
+- **Base URL**: `https://opensky-network.org/api/states/all`
+- **Type**: REST API
+- **Update Rate**: Every 10 seconds
+- **Coverage**: Global ADS-B data from network of receivers
 
-1. **Download WebsiteToAPKBuilder**
-   - Visit: https://websitetoapk.com/
-   - Download the latest version for your OS
+### 3. ADSB.lol
+- **Base URL**: `https://api.adsb.lol/v2/mil`
+- **Type**: REST API
+- **Update Rate**: Every 8 seconds
+- **Coverage**: Military aircraft and special operations
 
-2. **Configure Build Settings**
-   - **App Name**: C4ISR Military Tracking
-   - **Package Name**: com.c4isr.military.tracking
-   - **Version Code**: 1
-   - **Version Name**: 2.0.0
-   - **Min SDK**: 21 (Android 5.0)
-   - **Target SDK**: 33 (Android 13)
+## 🎛️ Controls / کنترل‌ها
 
-3. **Set Main URL**
-   - **Main URL**: `file:///android_asset/index.html`
-   - **Load Mode**: Load from assets
+### Data Sources Panel
+- **FlightRadar24**: Toggle commercial flight data
+- **OpenSky Network**: Toggle global ADS-B data
+- **ADSB.lol**: Toggle military aircraft data
 
-4. **Configure Permissions**
-   - Internet Access
-   - Location Services
-   - Network State
-   - Vibration
-   - Wake Lock
-   - Foreground Service
+### Filters
+- **Altitude Range**: Filter aircraft by altitude (0-60,000 ft)
+- **Speed Range**: Filter by speed (0-2000 knots)
+- **Aircraft Type**: Filter by military, commercial, or private
 
-5. **Build Configuration**
-   - **Build Type**: Release
-   - **Signing**: Use your keystore or generate new one
-   - **Architecture**: ARM64 (recommended)
+### Map Layers
+- **Satellite**: High-resolution satellite imagery
+- **Terrain**: Topographic map overlay
 
-6. **Generate APK**
-   - Click "Build APK"
-   - Wait for build completion
-   - Download and install the generated APK
+## 🔧 Technical Details / جزئیات فنی
 
-### Manual APK Creation
+### Architecture
+- **Frontend**: Pure HTML5, CSS3, and JavaScript (ES6+)
+- **Mapping**: Leaflet.js for lightweight, mobile-friendly maps
+- **Data Fetching**: Native Fetch API with automatic retry logic
+- **Language Support**: Built-in translation system with RTL support
 
-If you prefer manual creation:
+### Performance Features
+- **HTTP/3 Ready**: Optimized for modern network protocols
+- **Efficient Updates**: Smart data caching and incremental updates
+- **Memory Management**: Automatic cleanup of old flight data
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
 
-1. **Use Android Studio**
-   - Import the project
-   - Use the provided `android-manifest.xml`
-   - Build APK from Build menu
+### Browser Compatibility
+- **Chrome**: 80+
+- **Firefox**: 75+
+- **Safari**: 13+
+- **Edge**: 80+
 
-2. **Use Command Line**
-   ```bash
-   # Install Android SDK
-   # Use Gradle to build
-   ./gradlew assembleRelease
-   ```
+## 🌐 Language Support / پشتیبانی زبانی
 
-## 🏗️ Project Structure
+### English (Default)
+Full interface in English with standard aviation terminology.
 
-```
-c4isr-military-tracking-system/
-├── index.html              # Main application entry point
-├── dist/
-│   └── features.html       # Features information page
-├── styles/
-│   ├── main.css           # Core application styles
-│   ├── military-theme.css # Military-themed styling
-│   └── 3d-viewer.css     # 3D globe viewer styles
-├── js/
-│   ├── app.js             # Main application controller
-│   ├── config.js          # Configuration settings
-│   ├── language.js        # Multi-language support
-│   ├── data-sources.js    # Data source management
-│   ├── flight-tracker.js  # Flight tracking system
-│   ├── threat-detection.js # AI threat detection
-│   ├── map-controller.js  # Map system controller
-│   ├── 3d-globe.js       # 3D globe renderer
-│   ├── gps-jamming.js    # GPS jamming detection
-│   └── notifications.js   # Notification system
-├── audio/
-│   ├── threat-alert.mp3  # Threat alert sound
-│   └── system-alert.mp3  # System alert sound
-├── android-manifest.xml   # Android manifest for APK building
-├── package.json           # Node.js dependencies
-└── README.md             # This file
-```
+### فارسی (Persian)
+Complete Persian translation with RTL (right-to-left) text support:
+- تمام رابط کاربری به فارسی ترجمه شده
+- پشتیبانی از متن راست به چپ (RTL)
+- اصطلاحات هوانوردی به فارسی
 
-## 🔧 Configuration
+## 📱 Mobile Usage / استفاده موبایل
 
-### Data Sources
-Configure your data source API keys in `js/config.js`:
+The system is fully responsive and optimized for mobile devices:
+- Touch-friendly controls
+- Optimized map interactions
+- Efficient data usage
+- Offline capability for cached data
 
-```javascript
-const CONFIG = {
-    FLIGHTRADAR24: {
-        API_KEY: 'your_api_key_here',
-        BASE_URL: 'https://api.flightradar24.com'
-    },
-    OPENSKY: {
-        USERNAME: 'your_username',
-        PASSWORD: 'your_password'
-    },
-    // ... other sources
-};
-```
+## 🔒 Privacy & Security / حریم خصوصی و امنیت
 
-### Map Configuration
-Set your map provider API keys:
+- **No User Data Collection**: The system doesn't store personal information
+- **Local Processing**: All flight data processing happens in your browser
+- **Secure APIs**: Uses HTTPS for all external API calls
+- **No Tracking**: No analytics or user behavior tracking
 
-```javascript
-const MAP_CONFIG = {
-    LEAFLET: {
-        TILE_LAYER: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-    },
-    GOOGLE_MAPS: {
-        API_KEY: 'your_google_maps_api_key'
-    }
-};
-```
-
-## 🎯 Usage
-
-### Main Interface
-1. **Language Selection**: Choose your preferred language
-2. **Data Sources**: Enable/disable flight data sources
-3. **Map View**: Switch between 2D and 3D views
-4. **Filters**: Apply altitude, speed, and aircraft type filters
-5. **Threat Monitoring**: Monitor real-time threat levels
-
-### Features Page
-- Click the info button (ℹ️) in the header
-- View comprehensive system capabilities
-- Access detailed feature information
-
-### Threat Detection
-- Automatic threat assessment for all flights
-- Real-time alerts for high-risk situations
-- Pattern recognition for suspicious behavior
-
-## 🐛 Troubleshooting
+## 🚨 Troubleshooting / عیب‌یابی
 
 ### Common Issues
 
-1. **Map Not Loading**
-   - Check internet connection
-   - Verify map API keys
-   - Clear browser cache
+**Loading Screen Stuck**
+- Check browser console for JavaScript errors
+- Ensure all external resources are accessible
+- Try refreshing the page
 
-2. **No Flight Data**
-   - Verify data source API keys
-   - Check network connectivity
-   - Review browser console for errors
+**No Flight Data**
+- Verify internet connection
+- Check if APIs are responding (see browser console)
+- Try enabling different data sources
 
-3. **3D Globe Not Working**
-   - Ensure WebGL is enabled
-   - Update graphics drivers
-   - Check browser compatibility
-
-4. **Audio Not Playing**
-   - Check device volume
-   - Verify audio file permissions
-   - Test with different browsers
+**Map Not Loading**
+- Ensure Leaflet.js is accessible
+- Check if map tiles are loading
+- Verify browser supports HTML5 Canvas
 
 ### Debug Mode
-Enable debug logging in `js/config.js`:
+Open browser console (F12) to see detailed logging:
+- API response status
+- Flight data processing
+- Error messages and warnings
 
-```javascript
-const DEBUG = true;
+## 🛠️ Development / توسعه
+
+### Project Structure
+```
+├── index.html          # Main application file
+├── styles/             # CSS stylesheets
+├── js/                 # JavaScript modules
+├── README.md           # This file
+└── package.json        # Node.js dependencies
 ```
 
-### Performance Issues
-- Reduce map update frequency
-- Disable unused data sources
-- Use hardware acceleration
-- Optimize for mobile devices
+### Adding New Data Sources
+1. Add source configuration in the `initializeDataSources()` method
+2. Implement `fetch[SourceName]()` method
+3. Add source checkbox in HTML
+4. Update status indicators
 
-## 🔒 Security Considerations
+### Customizing the Interface
+- Modify CSS variables in the `<style>` section
+- Add new language translations in `initializeTranslations()`
+- Extend filter options in the sidebar
 
-- **API Keys**: Keep your API keys secure
-- **HTTPS**: Use HTTPS in production
-- **Permissions**: Request minimal required permissions
-- **Data Privacy**: Follow data protection regulations
+## 📊 API Rate Limits / محدودیت‌های API
 
-## 📱 Mobile Optimization
+### OpenSky Network
+- **Free Tier**: 30 requests per minute
+- **Authentication**: Optional (increases limits)
+- **Data**: Global ADS-B states
 
-- Responsive design for all screen sizes
-- Touch-friendly controls
-- Optimized for mobile browsers
-- Offline capability support
+### ADSB.lol
+- **Free Tier**: 45 requests per minute
+- **Authentication**: Not required
+- **Data**: Military aircraft focus
 
-## 🌐 Browser Support
+### FlightRadar24
+- **Free Tier**: Limited access
+- **Authentication**: Not available
+- **Data**: Commercial flight tracking
 
-- Chrome 80+
-- Firefox 75+
-- Safari 13+
-- Edge 80+
-- Mobile browsers with WebGL support
+## 🌟 Future Enhancements / بهبودهای آینده
 
-## 📄 License
+- [ ] Weather overlay integration
+- [ ] Flight path history
+- [ ] Aircraft photo database
+- [ ] Alert system for specific aircraft
+- [ ] Export flight data
+- [ ] 3D globe view
+- [ ] Audio alerts for military aircraft
+- [ ] Flight prediction algorithms
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 🤝 Contributing / مشارکت
 
-## 🤝 Contributing
+Contributions are welcome! Please feel free to:
+- Report bugs and issues
+- Suggest new features
+- Submit pull requests
+- Improve translations
+- Optimize performance
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+## 📄 License / مجوز
 
-## 📞 Support
+This project is open source and available under the MIT License.
+
+## 🙏 Acknowledgments / تشکر
+
+- **Leaflet.js**: Open-source mapping library
+- **OpenSky Network**: Free ADS-B data
+- **ADSB.lol**: Military aircraft data
+- **FlightRadar24**: Commercial flight information
+
+## 📞 Support / پشتیبانی
 
 For support and questions:
-- Create an issue on GitHub
-- Check the troubleshooting section
-- Review the configuration options
-
-## 🔄 Updates
-
-- Regular security updates
-- New data source integrations
-- Performance improvements
-- Feature enhancements
-
-## 📊 System Requirements
-
-### Development
-- Node.js 16.0.0+
-- Modern web browser
-- 4GB RAM minimum
-- 2GB free disk space
-
-### Production
-- Web server with HTTPS
-- 8GB RAM recommended
-- 5GB free disk space
-- High-speed internet connection
-
-### Android
-- Android 5.0 (API 21) or higher
-- 2GB RAM minimum
-- 100MB free storage
-- GPS and internet connectivity
+- Check the troubleshooting section above
+- Review browser console for error messages
+- Ensure all dependencies are accessible
+- Verify API endpoints are responding
 
 ---
 
-**Note**: This is a military-grade tracking system. Ensure compliance with local regulations and obtain necessary permissions before deployment. 
+**نکته مهم**: این سیستم برای اهداف آموزشی و تحقیقاتی طراحی شده است. لطفاً از داده‌های پرواز به صورت مسئولانه استفاده کنید.
+
+**Important Note**: This system is designed for educational and research purposes. Please use flight data responsibly. 
 
 
