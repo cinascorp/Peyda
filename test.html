@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C4ISR Test - Flight Data Verification</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff41;
+            margin: 20px;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #2d2d2d;
+            border: 1px solid #00ff41;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .test-title {
+            color: #ffaa00;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .flight-item {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 3px;
+        }
+        .flight-id {
+            color: #00ff41;
+            font-weight: bold;
+        }
+        .flight-type {
+            color: #ffaa00;
+        }
+        .flight-threat {
+            color: #ff0000;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+        .status.success {
+            background: #00ff41;
+            color: #000;
+        }
+        .status.error {
+            background: #ff0000;
+            color: #fff;
+        }
+        .status.warning {
+            background: #ffaa00;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>C4ISR Flight Data Test</h1>
+        
+        <div class="test-section">
+            <div class="test-title">System Status</div>
+            <div id="system-status">Initializing...</div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">Data Sources</div>
+            <div id="data-sources">Loading...</div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">Flight Data</div>
+            <div id="flight-data">Loading...</div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-title">Statistics</div>
+            <div id="statistics">Loading...</div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/data-sources.js"></script>
+    <script src="js/flight-tracker.js"></script>
+    
+    <script>
+        // Test script to verify flight data functionality
+        let dataSourceManager = null;
+        let flightTracker = null;
+        
+        async function runTests() {
+            console.log('Starting C4ISR Flight Data Tests...');
+            
+            // Initialize components
+            dataSourceManager = window.dataSourceManager;
+            flightTracker = window.flightTracker;
+            
+            if (!dataSourceManager || !flightTracker) {
+                document.getElementById('system-status').innerHTML = 
+                    '<div class="status error">Error: Components not initialized</div>';
+                return;
+            }
+            
+            // Test 1: System Status
+            document.getElementById('system-status').innerHTML = 
+                '<div class="status success">System Components Loaded Successfully</div>';
+            
+            // Test 2: Data Sources
+            const sourcesStatus = dataSourceManager.getAllSourcesStatus();
+            let sourcesHTML = '';
+            Object.entries(sourcesStatus).forEach(([key, status]) => {
+                const statusClass = status.status === 'online' ? 'success' : 'error';
+                sourcesHTML += `
+                    <div class="flight-item">
+                        <span class="flight-id">${status.name}</span>: 
+                        <span class="status ${statusClass}">${status.status}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('data-sources').innerHTML = sourcesHTML;
+            
+            // Test 3: Flight Data
+            setTimeout(() => {
+                const combinedData = dataSourceManager.getCombinedData();
+                let flightsHTML = '';
+                
+                if (combinedData && combinedData.flights && combinedData.flights.length > 0) {
+                    combinedData.flights.forEach(flight => {
+                        const threatClass = flight.threatLevel === 'high' ? 'error' : 
+                                          flight.threatLevel === 'medium' ? 'warning' : 'success';
+                        flightsHTML += `
+                            <div class="flight-item">
+                                <div><span class="flight-id">${flight.callsign}</span> (${flight.id})</div>
+                                <div>Type: <span class="flight-type">${flight.type}</span></div>
+                                <div>Position: ${flight.latitude.toFixed(4)}, ${flight.longitude.toFixed(4)}</div>
+                                <div>Altitude: ${flight.altitude} ft | Speed: ${flight.speed} kts</div>
+                                <div>Threat: <span class="status ${threatClass}">${flight.threatLevel}</span></div>
+                                <div>Source: ${flight.source}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    flightsHTML = '<div class="status warning">No flight data available</div>';
+                }
+                
+                document.getElementById('flight-data').innerHTML = flightsHTML;
+                
+                // Test 4: Statistics
+                const stats = flightTracker.getStatistics();
+                const statsHTML = `
+                    <div class="flight-item">
+                        <div>Total Flights: ${stats.totalFlights}</div>
+                        <div>Threat Flights: ${stats.threatFlights}</div>
+                        <div>Military: ${stats.militaryFlights} | Commercial: ${stats.commercialFlights}</div>
+                        <div>Private: ${stats.privateFlights} | UAV: ${stats.uavFlights}</div>
+                        <div>Avg Altitude: ${Math.round(stats.averageAltitude)} ft</div>
+                        <div>Avg Speed: ${Math.round(stats.averageSpeed)} kts</div>
+                    </div>
+                `;
+                document.getElementById('statistics').innerHTML = statsHTML;
+                
+            }, 2000);
+            
+            // Start flight tracking
+            flightTracker.startTracking();
+            
+            // Update data every 5 seconds
+            setInterval(() => {
+                const combinedData = dataSourceManager.getCombinedData();
+                if (combinedData && combinedData.flights && combinedData.flights.length > 0) {
+                    console.log(`Tracking ${combinedData.flights.length} flights`);
+                }
+            }, 5000);
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

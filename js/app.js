@@ -67,6 +67,7 @@ class C4ISRApplication {
         this.components.gpsJamming = new GPSJammingSystem();
         this.components.mapController = new MapController();
         this.components.globe3D = new Globe3D();
+        this.components.flightTracker = window.flightTracker;
         
         // Wait for all components to be ready
         await this.waitForComponents();
@@ -83,7 +84,8 @@ class C4ISRApplication {
             () => this.components.threatDetection && this.components.threatDetection.isInitialized !== false,
             () => this.components.gpsJamming && this.components.gpsJamming.isInitialized !== false,
             () => this.components.mapController && this.components.mapController.isInitialized !== false,
-            () => this.components.globe3D && this.components.globe3D.isInitialized !== false
+            () => this.components.globe3D && this.components.globe3D.isInitialized !== false,
+            () => this.components.flightTracker && this.components.flightTracker.isInitialized !== false
         ];
         
         let attempts = 0;
@@ -288,6 +290,11 @@ class C4ISRApplication {
             
             // Start threat monitoring
             this.startThreatMonitoring();
+            
+            // Start flight tracking
+            if (this.components.flightTracker) {
+                this.components.flightTracker.startTracking();
+            }
             
             // Update status
             this.updateSystemStatus();
@@ -773,6 +780,18 @@ class C4ISRApplication {
             const combinedData = this.components.dataSourceManager.getCombinedData();
             flightCount.textContent = `${combinedData.totalFlights} Flights`;
             flightCount.setAttribute('data-count', combinedData.totalFlights);
+        }
+        
+        // Update flight tracker with new data
+        if (this.components.flightTracker && data.data && data.data.flights) {
+            data.data.flights.forEach(flight => {
+                this.components.flightTracker.addFlight(flight);
+            });
+        }
+        
+        // Update map with new data
+        if (this.components.mapController && this.components.mapController.isActive) {
+            this.components.mapController.updateFlightData();
         }
     }
     
