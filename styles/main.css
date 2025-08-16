@@ -93,14 +93,7 @@ html, body {
 .loading-progress {
     height: 100%;
     background: linear-gradient(90deg, var(--primary), var(--accent));
-    width: 0%;
-    animation: loading 2s ease-in-out infinite;
-}
-
-@keyframes loading {
-    0% { width: 0%; }
-    50% { width: 100%; }
-    100% { width: 0%; }
+    width: 100%;
 }
 
 .loading-text {
@@ -161,7 +154,6 @@ html, body {
     height: 12px;
     border-radius: 50%;
     background: var(--success);
-    animation: pulse 2s infinite;
 }
 
 .status-indicator.online {
@@ -172,10 +164,7 @@ html, body {
     background: var(--danger);
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
+
 
 .header-center {
     display: flex;
@@ -553,6 +542,74 @@ html, body {
 
 .map-view.active {
     display: block;
+}
+
+/* Flight Markers */
+.flight-marker {
+    background: transparent;
+    border: none;
+}
+
+.flight-marker i {
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+    transition: all 0.3s ease;
+}
+
+.flight-marker.flight-military i {
+    color: #ff0000 !important;
+}
+
+.flight-marker.flight-commercial i {
+    color: #00ff41 !important;
+}
+
+.flight-marker.flight-private i {
+    color: #0066cc !important;
+}
+
+.flight-marker.flight-uav i {
+    color: #ffaa00 !important;
+}
+
+.flight-marker.flight-unknown i {
+    color: #888888 !important;
+}
+
+.flight-marker:hover i {
+    transform: scale(1.2);
+    filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.7));
+}
+
+/* Flight Popup */
+.flight-popup {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.flight-popup h4 {
+    margin: 0 0 8px 0;
+    color: #00ff41;
+    font-weight: bold;
+}
+
+.flight-popup p {
+    margin: 4px 0;
+}
+
+.flight-popup .threat-high {
+    color: #ff0000;
+    font-weight: bold;
+}
+
+.flight-popup .threat-medium {
+    color: #ffaa00;
+    font-weight: bold;
+}
+
+.flight-popup .threat-low {
+    color: #00ff41;
+    font-weight: bold;
 }
 
 /* Map Controls Overlay */
