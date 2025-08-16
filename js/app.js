@@ -33,6 +33,9 @@ class C4ISRApplication {
             // Setup event system
             this.setupEventSystem();
             
+            // Bridge window CustomEvents to app handlers
+            this.hookWindowEvents();
+            
             // Setup UI event listeners
             this.setupUIEventListeners();
             
@@ -128,6 +131,16 @@ class C4ISRApplication {
         this.registerEvent('flightSelected', this.onFlightSelected.bind(this));
         this.registerEvent('mapViewChanged', this.onMapViewChanged.bind(this));
         this.registerEvent('zoomChanged', this.onZoomChanged.bind(this));
+    }
+
+    hookWindowEvents() {
+        const forward = (name) => window.addEventListener(name, (e) => this.dispatchEvent(name, e.detail || {}));
+        [
+            'systemReady', 'systemError', 'threatDetected', 'dataUpdated', 'sourceActivated', 'sourceDeactivated',
+            'languageChanged', 'viewModeChanged', 'filterApplied', 'layerActivated', 'gpsJammingActivated',
+            'gpsJammingDeactivated', 'stealthModeActivated', 'stealthModeDeactivated', 'flightSelected',
+            'mapViewChanged', 'zoomChanged'
+        ].forEach(forward);
     }
     
     /**
@@ -754,6 +767,10 @@ class C4ISRApplication {
     onSystemReady(data) {
         console.log('System ready event received:', data);
         this.showNotification('System Ready', 'C4ISR System is now operational', 'success');
+        // Trigger an initial render in case data is already available
+        if (this.components.mapController) {
+            this.components.mapController.requestRender && this.components.mapController.requestRender();
+        }
     }
     
     onSystemError(data) {
@@ -773,6 +790,10 @@ class C4ISRApplication {
             const combinedData = this.components.dataSourceManager.getCombinedData();
             flightCount.textContent = `${combinedData.totalFlights} Flights`;
             flightCount.setAttribute('data-count', combinedData.totalFlights);
+        }
+        // Re-render map with new flights
+        if (this.components && this.components.mapController && this.components.mapController.requestRender) {
+            this.components.mapController.requestRender();
         }
     }
     
