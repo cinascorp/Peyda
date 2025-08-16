@@ -16,6 +16,11 @@ class DataSourceManager {
         this.initializeSources();
         this.setupEventListeners();
         this.startMonitoring();
+        
+        // Try activating any sources that are checked in the UI at startup
+        setTimeout(() => {
+            try { this.activateCheckedSources(); } catch (e) { console.warn('Activate checked sources failed:', e); }
+        }, 0);
     }
     
     /**
@@ -65,7 +70,7 @@ class DataSourceManager {
         // Initialize connection status
         Object.keys(this.sources).forEach(sourceKey => {
             this.connectionStatus[sourceKey] = 'disconnected';
-            this.requestCounters[sourceKey] = 0;
+            this.requestCounters[sourceKey] = { count: 0, lastReset: Date.now() };
             this.lastUpdate[sourceKey] = null;
         });
     }
@@ -90,6 +95,19 @@ class DataSourceManager {
         // Language change events
         window.addEventListener('languageChanged', () => {
             this.updateSourceStatus();
+        });
+    }
+    
+    /**
+     * Attempt to activate all sources whose checkboxes are checked
+     */
+    activateCheckedSources() {
+        const sourceCheckboxes = document.querySelectorAll('[id$="-source"]');
+        sourceCheckboxes.forEach(checkbox => {
+            const sourceKey = checkbox.id.replace('-source', '');
+            if (checkbox.checked) {
+                this.activateSource(sourceKey);
+            }
         });
     }
     
@@ -164,7 +182,7 @@ class DataSourceManager {
                     testUrl = `${config.BASE_URL}/status.js`;
                     break;
                 case 'opensky':
-                    testUrl = `${config.BASE_URL}/states/all?time=0&icao24=abc123`;
+                    testUrl = `${config.BASE_URL}/states/all`;
                     break;
                 case 'adsb':
                     testUrl = `${config.BASE_URL}/status`;
@@ -196,14 +214,13 @@ class DataSourceManager {
         const source = this.sources[sourceKey];
         if (!source || this.activeSources.has(sourceKey)) return;
         
-        // Check if source is online
-        if (source.status !== 'online') {
-            console.warn(`Cannot activate ${sourceKey}: source is offline`);
-            return;
-        }
-        
+        // Allow activation even if status probe fails; fetching will determine health
         this.activeSources.add(sourceKey);
+        this.connectionStatus[sourceKey] = 'connecting';
         this.startDataUpdates(sourceKey);
+        
+        // Kick off an immediate fetch so UI updates quickly
+        this.updateSourceData(sourceKey).catch(() => {});
         
         // Update UI
         this.updateSourceStatus();
@@ -301,6 +318,10 @@ class DataSourceManager {
                 this.lastUpdate[sourceKey] = new Date();
                 this.cacheData(sourceKey, data);
                 
+                // Mark as connected if we got valid data
+                this.connectionStatus[sourceKey] = 'connected';
+                source.status = 'online';
+                
                 // Dispatch data update event
                 window.dispatchEvent(new CustomEvent('dataUpdated', {
                     detail: { source: sourceKey, data: data }
@@ -310,6 +331,8 @@ class DataSourceManager {
         } catch (error) {
             console.error(`Error updating ${sourceKey} data:`, error);
             source.errorCount++;
+            this.connectionStatus[sourceKey] = 'error';
+            source.status = 'offline';
             
             // Implement retry logic
             if (source.errorCount < source.config.RETRY_ATTEMPTS) {
@@ -443,7 +466,7 @@ class DataSourceManager {
      */
     parseFlightRadar24Data(rawData) {
         // Implementation depends on actual API response format
-        // This is a placeholder for the actual parsing logic
+        // Placeholder (FR24 often blocked by CORS), return empty set but valid shape
         return {
             source: 'flightradar24',
             timestamp: new Date(),
@@ -453,7 +476,8 @@ class DataSourceManager {
                 military: 0,
                 commercial: 0,
                 private: 0,
-                uav: 0
+                uav: 0,
+                unknown: 0
             }
         };
     }
@@ -464,17 +488,54 @@ class DataSourceManager {
      * @returns {Object} Parsed flight data
      */
     parseOpenSkyData(rawData) {
-        // Implementation depends on actual API response format
+        const flights = [];
+        const states = Array.isArray(rawData && rawData.states) ? rawData.states : [];
+        
+        for (const s of states) {
+            // OpenSky state vector indices
+            const icao24 = s[0];
+            const callsign = (s[1] || '').trim();
+            const longitude = s[5];
+            const latitude = s[6];
+            const baroAltitudeMeters = s[7];
+            const velocityMs = s[9];
+            const headingDeg = s[10];
+            const geoAltitudeMeters = s[13];
+            const category = s[17];
+            
+            if (typeof latitude !== 'number' || typeof longitude !== 'number') continue;
+            
+            const altitudeMeters = typeof geoAltitudeMeters === 'number' ? geoAltitudeMeters : (typeof baroAltitudeMeters === 'number' ? baroAltitudeMeters : null);
+            const altitudeFeet = typeof altitudeMeters === 'number' ? Math.round(altitudeMeters * 3.28084) : null;
+            const speedKts = typeof velocityMs === 'number' ? Math.round(velocityMs * 1.94384) : null;
+            
+            const type = (typeof category === 'number' && category >= 0) ? 'unknown' : 'unknown';
+            
+            flights.push({
+                id: icao24 || callsign || `${latitude},${longitude}`,
+                icao24: icao24 || null,
+                callsign: callsign || null,
+                lat: latitude,
+                lon: longitude,
+                altitude: altitudeFeet,
+                speed: speedKts,
+                heading: typeof headingDeg === 'number' ? headingDeg : null,
+                type,
+                source: 'opensky'
+            });
+        }
+        
         return {
             source: 'opensky',
-            timestamp: new Date(),
-            flights: [],
+            timestamp: new Date((rawData && rawData.time) ? rawData.time * 1000 : Date.now()),
+            flights,
             metadata: {
-                total: 0,
+                total: flights.length,
                 military: 0,
                 commercial: 0,
                 private: 0,
-                uav: 0
+                uav: 0,
+                unknown: flights.length
             }
         };
     }
@@ -485,17 +546,45 @@ class DataSourceManager {
      * @returns {Object} Parsed flight data
      */
     parseADSBData(rawData) {
-        // Implementation depends on actual API response format
+        const flights = [];
+        const list = Array.isArray(rawData && rawData.ac) ? rawData.ac : (Array.isArray(rawData && rawData.aircraft) ? rawData.aircraft : []);
+        
+        for (const a of list) {
+            const lat = a.lat ?? a.latitude ?? a.lat_dd;
+            const lon = a.lon ?? a.longitude ?? a.lon_dd;
+            if (typeof lat !== 'number' || typeof lon !== 'number') continue;
+            
+            const id = a.hex || a.icao || a.icao24 || a.flight || `${lat},${lon}`;
+            const altitudeFeet = typeof a.alt_baro === 'number' ? a.alt_baro : (typeof a.alt_geom === 'number' ? Math.round(a.alt_geom * 3.28084) : null);
+            // Ground speed may be in knots already (gs) or m/s (speed)
+            const speedKts = typeof a.gs === 'number' ? Math.round(a.gs) : (typeof a.speed === 'number' ? Math.round(a.speed * 1.94384) : null);
+            const heading = typeof a.track === 'number' ? a.track : (typeof a.heading === 'number' ? a.heading : null);
+            
+            flights.push({
+                id,
+                icao24: a.icao24 || a.hex || null,
+                callsign: a.flight || a.call || null,
+                lat,
+                lon,
+                altitude: altitudeFeet,
+                speed: speedKts,
+                heading,
+                type: (a.type || 'military').toLowerCase().includes('mil') ? 'military' : 'unknown',
+                source: 'adsb'
+            });
+        }
+        
         return {
             source: 'adsb',
             timestamp: new Date(),
-            flights: [],
+            flights,
             metadata: {
-                total: 0,
-                military: 0,
+                total: flights.length,
+                military: flights.filter(f => f.type === 'military').length,
                 commercial: 0,
                 private: 0,
-                uav: 0
+                uav: 0,
+                unknown: flights.filter(f => f.type === 'unknown').length
             }
         };
     }
@@ -558,16 +647,20 @@ class DataSourceManager {
         const maxRequests = source.config.MAX_REQUESTS_PER_MINUTE;
         
         // Reset counter if more than a minute has passed
-        if (now - counter.lastReset > 60000) {
-            counter.count = 0;
-            counter.lastReset = now;
+        if (!counter || typeof counter.lastReset !== 'number') {
+            this.requestCounters[sourceKey] = { count: 0, lastReset: now };
+        }
+        const c = this.requestCounters[sourceKey];
+        if (now - c.lastReset > 60000) {
+            c.count = 0;
+            c.lastReset = now;
         }
         
-        if (counter.count >= maxRequests) {
+        if (c.count >= maxRequests) {
             return true;
         }
         
-        counter.count++;
+        c.count++;
         return false;
     }
     
