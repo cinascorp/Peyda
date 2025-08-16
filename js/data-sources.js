@@ -12,6 +12,7 @@ class DataSourceManager {
         this.updateIntervals = new Map();
         this.requestCounters = new Map();
         this.lastUpdate = {};
+        this._didInitialActivation = false;
         
         this.initializeSources();
         this.setupEventListeners();
@@ -65,7 +66,7 @@ class DataSourceManager {
         // Initialize connection status
         Object.keys(this.sources).forEach(sourceKey => {
             this.connectionStatus[sourceKey] = 'disconnected';
-            this.requestCounters[sourceKey] = 0;
+            this.requestCounters[sourceKey] = { count: 0, lastReset: Date.now() };
             this.lastUpdate[sourceKey] = null;
         });
     }
@@ -116,6 +117,21 @@ class DataSourceManager {
         
         await Promise.allSettled(promises);
         this.updateSourceStatus();
+        this.performInitialActivationIfReady();
+    }
+    
+    /**
+     * Activate checked, online sources once during startup
+     */
+    performInitialActivationIfReady() {
+        if (this._didInitialActivation) return;
+        Object.keys(this.sources).forEach(sourceKey => {
+            const checkbox = document.getElementById(`${sourceKey}-source`);
+            if (checkbox && checkbox.checked) {
+                this.activateSource(sourceKey);
+            }
+        });
+        this._didInitialActivation = true;
     }
     
     /**
@@ -178,7 +194,8 @@ class DataSourceManager {
             
             const response = await this.makeRequest(testUrl, {
                 timeout: 5000,
-                method: 'GET'
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
             });
             
             return response.ok;
@@ -196,12 +213,7 @@ class DataSourceManager {
         const source = this.sources[sourceKey];
         if (!source || this.activeSources.has(sourceKey)) return;
         
-        // Check if source is online
-        if (source.status !== 'online') {
-            console.warn(`Cannot activate ${sourceKey}: source is offline`);
-            return;
-        }
-        
+        // Proceed with activation even if status is offline; data fetch will handle errors/CORS
         this.activeSources.add(sourceKey);
         this.startDataUpdates(sourceKey);
         
@@ -248,6 +260,9 @@ class DataSourceManager {
         const interval = setInterval(async () => {
             await this.updateSourceData(sourceKey);
         }, source.config.UPDATE_INTERVAL);
+        
+        // Kick off an immediate fetch for faster first render
+        this.updateSourceData(sourceKey).catch(() => {});
         
         this.updateIntervals.set(sourceKey, interval);
     }
@@ -358,11 +373,18 @@ class DataSourceManager {
         const url = `${config.BASE_URL}/states/all`;
         
         try {
+            const headers = {
+                'User-Agent': 'C4ISR-Military-Tracker/2.0.0'
+            };
+            // Optional: add basic auth if configured via global ENV-like variables
+            if (config.AUTH && config.AUTH.BASIC && config.AUTH.BASIC.USER && config.AUTH.BASIC.PASS) {
+                const token = btoa(`${config.AUTH.BASIC.USER}:${config.AUTH.BASIC.PASS}`);
+                headers['Authorization'] = `Basic ${token}`;
+            }
+            
             const response = await this.makeRequest(url, {
                 method: 'GET',
-                headers: {
-                    'User-Agent': 'C4ISR-Military-Tracker/2.0.0'
-                }
+                headers
             });
             
             if (!response.ok) {
@@ -442,8 +464,7 @@ class DataSourceManager {
      * @returns {Object} Parsed flight data
      */
     parseFlightRadar24Data(rawData) {
-        // Implementation depends on actual API response format
-        // This is a placeholder for the actual parsing logic
+        // FR24 is commonly CORS-restricted. Leave as no-op until proxy is used.
         return {
             source: 'flightradar24',
             timestamp: new Date(),
@@ -453,7 +474,8 @@ class DataSourceManager {
                 military: 0,
                 commercial: 0,
                 private: 0,
-                uav: 0
+                uav: 0,
+                unknown: 0
             }
         };
     }
@@ -464,18 +486,53 @@ class DataSourceManager {
      * @returns {Object} Parsed flight data
      */
     parseOpenSkyData(rawData) {
-        // Implementation depends on actual API response format
+        const states = Array.isArray(rawData?.states) ? rawData.states : [];
+        const flights = [];
+        const metadata = { total: 0, military: 0, commercial: 0, private: 0, uav: 0, unknown: 0 };
+        
+        for (const s of states) {
+            // OpenSky state vector indices per API docs
+            const icao24 = s[0] || '';
+            const callsign = (s[1] || '').trim();
+            const originCountry = s[2] || '';
+            const longitude = s[5];
+            const latitude = s[6];
+            const baroAltitudeMeters = s[7];
+            const velocityMs = s[9];
+            const trueTrackDeg = s[10];
+            const geoAltitudeMeters = s[13];
+            
+            if (typeof latitude !== 'number' || typeof longitude !== 'number') continue;
+            const altitudeMeters = (typeof geoAltitudeMeters === 'number') ? geoAltitudeMeters : baroAltitudeMeters;
+            const altitudeFeet = (typeof altitudeMeters === 'number') ? Math.round(altitudeMeters * 3.28084) : null;
+            const speedKts = (typeof velocityMs === 'number') ? Math.round(velocityMs * 1.94384) : null;
+            const heading = (typeof trueTrackDeg === 'number') ? Math.round(trueTrackDeg) : null;
+            
+            // Heuristic type detection is limited without extra data
+            const type = 'unknown';
+            metadata.unknown++;
+            
+            flights.push({
+                id: `opensky_${icao24 || callsign || Math.random().toString(36).slice(2)}`,
+                source: 'opensky',
+                icao24,
+                callsign,
+                origin_country: originCountry,
+                coordinates: { lat: latitude, lng: longitude },
+                altitude: altitudeFeet,
+                speed: speedKts,
+                heading,
+                aircraft_type: type,
+                raw: s
+            });
+        }
+        metadata.total = flights.length;
+        
         return {
             source: 'opensky',
             timestamp: new Date(),
-            flights: [],
-            metadata: {
-                total: 0,
-                military: 0,
-                commercial: 0,
-                private: 0,
-                uav: 0
-            }
+            flights,
+            metadata
         };
     }
     
@@ -485,18 +542,47 @@ class DataSourceManager {
      * @returns {Object} Parsed flight data
      */
     parseADSBData(rawData) {
-        // Implementation depends on actual API response format
+        const acList = Array.isArray(rawData?.ac) ? rawData.ac : (Array.isArray(rawData) ? rawData : []);
+        const flights = [];
+        const metadata = { total: 0, military: 0, commercial: 0, private: 0, uav: 0, unknown: 0 };
+        
+        for (const ac of acList) {
+            const hex = ac.hex || ac.icao || ac.icao24 || '';
+            const callsign = (ac.flight || ac.callsign || '').trim();
+            const lat = ac.lat ?? ac.latitude;
+            const lon = ac.lon ?? ac.lng ?? ac.longitude;
+            const altBaro = ac.alt_baro ?? ac.alt_baro_ft ?? ac.baro_altitude;
+            const gs = ac.gs ?? ac.speed_kts ?? ac.vel ?? ac.velocity_kts;
+            const track = ac.track ?? ac.heading ?? ac.true_track;
+            
+            if (typeof lat !== 'number' || typeof lon !== 'number') continue;
+            const altitudeFeet = (typeof altBaro === 'number') ? Math.round(altBaro) : null;
+            const speedKts = (typeof gs === 'number') ? Math.round(gs) : null;
+            const heading = (typeof track === 'number') ? Math.round(track) : null;
+            
+            const type = 'military';
+            metadata.military++;
+            
+            flights.push({
+                id: `adsb_${hex || callsign || Math.random().toString(36).slice(2)}`,
+                source: 'adsb',
+                icao24: hex,
+                callsign,
+                coordinates: { lat, lng: lon },
+                altitude: altitudeFeet,
+                speed: speedKts,
+                heading,
+                aircraft_type: type,
+                raw: ac
+            });
+        }
+        metadata.total = flights.length;
+        
         return {
             source: 'adsb',
             timestamp: new Date(),
-            flights: [],
-            metadata: {
-                total: 0,
-                military: 0,
-                commercial: 0,
-                private: 0,
-                uav: 0
-            }
+            flights,
+            metadata
         };
     }
     
@@ -613,12 +699,6 @@ class DataSourceManager {
             if (statusElement) {
                 statusElement.className = `source-status ${source.status}`;
             }
-            
-            // Update checkbox state
-            const checkbox = document.getElementById(`${sourceKey}-source`);
-            if (checkbox) {
-                checkbox.checked = this.activeSources.has(sourceKey);
-            }
         });
     }
     
@@ -708,13 +788,11 @@ class DataSourceManager {
                     lastUpdate: this.lastUpdate[sourceKey]
                 };
                 
-                // Combine flight data
                 if (source.lastData.flights) {
                     combined.flights.push(...source.lastData.flights);
                     combined.totalFlights += source.lastData.flights.length;
                 }
                 
-                // Update metadata
                 if (source.lastData.metadata) {
                     Object.keys(source.lastData.metadata).forEach(key => {
                         if (combined.metadata[key] !== undefined) {

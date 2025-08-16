@@ -43,7 +43,13 @@ const C4ISR_CONFIG = {
             UPDATE_INTERVAL: 10000, // 10 seconds
             MAX_REQUESTS_PER_MINUTE: 30,
             API_KEY_REQUIRED: true,
-            SUPPORTED_FEATURES: ["realtime", "historical", "trajectory"]
+            SUPPORTED_FEATURES: ["realtime", "historical", "trajectory"],
+            AUTH: {
+                BASIC: {
+                    USER: "",
+                    PASS: ""
+                }
+            }
         },
         
         ADSB: {

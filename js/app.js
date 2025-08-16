@@ -512,6 +512,8 @@ class C4ISRApplication {
         // Activate map controller
         if (this.components.mapController) {
             this.components.mapController.activate();
+            // Render any existing data immediately on switch
+            this.components.mapController.renderCombinedFlights();
         }
         
         // Deactivate 3D globe
@@ -773,6 +775,10 @@ class C4ISRApplication {
             const combinedData = this.components.dataSourceManager.getCombinedData();
             flightCount.textContent = `${combinedData.totalFlights} Flights`;
             flightCount.setAttribute('data-count', combinedData.totalFlights);
+        }
+        // Trigger map re-render
+        if (this.components.mapController && this.components.mapController.isHealthy()) {
+            this.components.mapController.renderCombinedFlights();
         }
     }
     
