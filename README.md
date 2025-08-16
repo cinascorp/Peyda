@@ -6,11 +6,20 @@ A lightweight, real-time flight tracking system that displays aircraft positions
 
 - **Real-time Flight Tracking**: Monitor aircraft positions in real-time
 - **Multiple Data Sources**: Integrates with FlightRadar24, OpenSky Network, and ADSB.lol
-- **Interactive Map**: Built with Leaflet.js for smooth navigation
 - **Bilingual Support**: English and Persian (فارسی) interface
 - **Lightweight Design**: Optimized for performance without heavy dependencies
 - **Free APIs**: No paid subscriptions required
 - **Military Aircraft Detection**: Special focus on military and commercial aircraft
+
+## ردیابی پرواز در لحظه
+## موقعیت هواپیماها را به صورت لحظه‌ای رصد کنید -
+## منابع داده چندگانه
+## پشتیبانی دو زبانه: رابط کاربری انگلیسی و فارسی (فارسی) -
+## طراحی سبک
+## بهینه شده برای عملکرد بدون وابستگی‌های سنگین -
+## تشخیص هواپیماهای نظامی
+## تمرکز ویژه بر تفکیک ریزپرنده ها از هواپیماهای نظامی و تجاری
+
 
 ## 🚀 Quick Start / شروع سریع
 
